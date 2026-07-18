@@ -20,8 +20,7 @@
   --radius:10px;--radius-lg:16px;--radius-xl:24px;
   --shadow:0 4px 24px rgba(0,0,0,.4);
 }
-html{overflow-anchor:none}
-body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;overflow-anchor:none}
+body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
 #app{min-height:100vh;display:flex;flex-direction:column;align-items:center;width:100%}
 
 /* Background grid */
@@ -134,25 +133,6 @@ body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);min-h
 .auth-message{margin-top:14px;padding:10px 12px;border-radius:12px;font-size:13px;border:1px solid rgba(239,68,68,.22);background:rgba(239,68,68,.12);color:#ffd3d3}
 .auth-message.success{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.12);color:#dff8e8}
 .user-pill{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2)}
-
-/* Admin panel */
-.admin-tabs{display:flex;gap:8px;margin-bottom:18px}
-.admin-tab{padding:10px 18px;border-radius:12px;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text2);font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
-.admin-tab:hover{border-color:var(--accent2);color:var(--text)}
-.admin-tab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent2)}
-.admin-table{width:100%;border-collapse:collapse;font-size:13px}
-.admin-table th{text-align:left;padding:10px 12px;color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2)}
-.admin-table td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
-.admin-table tr:hover td{background:rgba(255,255,255,.02)}
-.admin-q-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.03);margin-bottom:10px}
-.admin-q-text{font-size:14px;color:var(--text);flex:1;line-height:1.5}
-.admin-q-actions{display:flex;gap:8px;flex-shrink:0}
-.field textarea{width:100%;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text);padding:13px 14px;border-radius:12px;font-size:14px;outline:none;font-family:inherit;resize:vertical;min-height:70px;transition:border-color .2s,background .2s}
-.field textarea:focus{border-color:var(--accent2);background:rgba(255,255,255,.06)}
-.admin-opt-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.admin-opt-row input[type=text]{flex:1;margin:0}
-.admin-msg{padding:12px 16px;border-radius:12px;background:var(--accent-bg);color:var(--accent2);font-size:13px;margin-bottom:16px}
-.empty-note{color:var(--text3);font-size:13px;padding:20px;text-align:center}
 .user-pill strong{color:var(--text);font-size:13px}
 .progress-card{width:100%;background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:24px;padding:24px 24px 20px;box-shadow:0 18px 60px rgba(0,0,0,.28);margin-bottom:20px}
 .progress-title{font-size:18px;font-weight:800;margin-bottom:6px}
@@ -210,7 +190,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const QUESTIONS = [
-{q:"Математиканы оқытуда басшылыққа алатын негізгі дидактикалық қағидалалар:",opts:["тәрбиелеу қағидасы","пәнді оқыту","көрнекілік қағидасы","ойлау қағидасы","әдістемелік жүйе","ғылымилық қағида","жүйелілік қағидасы"],correct:[1,3,7]},
+{q:"Математиканы оқытуда басшылыққа алатын негізгі дидактикалық қағидалалар:",opts:["тәрбиелеу қағидасы","пәнді оқыту","көрнекілік қағидасы","ойлау қағидасы","әдістемелік жүйе","ғылымилық қағида","жүйелілік қағидасы"],correct:[1,3,6]},
 {q:"Математикалық сөйлемдердің маңызды түрлеріне жататындар",opts:["Постулаттар","геометриялық ұғым","Аксиомалалар","Кеңістік","Теоремалар","Абстракт","Анықтамалар"],correct:[1,3,5]},
 {q:"Математиканы оқытуда шексіз шығармашылық процесс",opts:["Үйрену","Оқыту","Ойлау","Тәжірибе","Түсіну","Іздену","Зерттеу"],correct:[2]},
 {q:"Математиканы оқыту әдістемесінің шартты түрде бөлінетін салалары",opts:["оқыту әдістемесі","шынайы әдістемесі","үйрету әдістемесі","нақты әдістемесі","жалпы әдістемесі","математикалық логика","арнайы әдістемесі"],correct:[4,5,7]},
@@ -251,9 +231,9 @@ const QUESTIONS = [
 {q:"Кез келген дәлелдеудің құрылымды бөліктері",opts:["Ойлау","Аргументтер","Тезис","Демонстрация","Негіздеу","Дәлелдеу","Қорытынды"],correct:[2,3,4]},
 {q:"Сабаққа қойылатын үшінші талап",opts:["Қажетті жабдықтар мен әдістерді таңдау","Міндеттерді ұғынуы","Құрылымының өзгергіштігі","Қызықтылығы","Жаңалығының болуы","Сапалық көрсеткіші","Уақытты үнемдеу"],correct:[1]},
 {q:"Мұғалімдердің біреуі белсенді ойлау қызметіне жіберілетін уақытты мұқият жазып отырады",opts:["Ішінара талдау","Кешенді талдау","Талдау","Психологиялық талдау","Құрылымдық талдау","Педагогикалық талдау","Бақылау"],correct:[2]},
-{q:"Мұғалімге оқушылардың білім, білік, дағдыларының қалыптасу деңгейін анықтауға мүмкіндік береді",opts:["Шығармашылық сабағы","Жалпылау сабағы","Білімді бекіту сабағы","Тексеру сабағы","Білімді тексеру сабағы","Ой-өрісін дамыту","Жаттығу сабағы"],correct:[4]},
+{q:"Мұғалімге оқушылардың білім, білік, дағдыларының қалыптасу деңгейін анықтауға мүмкіндік береді",opts:["Шығармашылық сабағы","Жалпылау сабағы","Білімді бекіту сабағы","Тексеру(бақылау) сабағы","Білімді тексеру сабағы","Ой-өрісін дамыту","Жаттығу сабағы"],correct:[4]},
 {q:"Өзіндік жұмыстарды қойылған мақсатына байланысты бөлуге болады",opts:["еркіндік және талғамдық","шығармашылық және мазмұндылық","қайталаушылық және коррекциялық","білімділік және қайталаушылық","коррекциялық және білімділік","жаттығушылық және бекітушілік","мазмұндылық және бекітушілік"],correct:[4,6]},
-{q:"Табиғаттың, қоғамның дамуының неғұрлым жалпы заңдылықтарын ойлау",opts:["геометрия","алгебра","психология","Философия","Диалектика","математикалық логика","Педагогика"],correct:[1,2,6]},
+{q:"Табиғаттың, қоғамның дамуының неғұрлым жалпы заңдылықтарын ойлау",opts:["геометрия","алгебра","психология","Философия","Диалектика","математикалық логика","Педагогика"],correct:[5]},
 {q:"Ұғымдарды қалыптастыруда аналогияның бір түрі",opts:["биоморфизм","сиигорманизм","геоморфизм","морфизм","Изоморфизм","бақылау","анализ"],correct:[5]},
 {q:"Интербелсенді оқытудың өмірмен байланыс қағидасы",opts:["практикалық әрекетке негіздеу","жаңалық құрастыру","түсінік қалыптастыру","бағыт-бағдар беру","еркін шығармашылық","әлеммен байланыс орнату","тәсілдерді ұйымдастыру"],correct:[1,6]},
 {q:"Интербелсенді оқытудың өзіндік пен дербестікті қалыптастыру қағидасы",opts:["білімді белсенді түрде игеру процесін интербелсенді тәсілдер арқылы ұйымдастыру","білім алушыларда сыни және талдау тұрғысынан ойлаудың дағдыларын қалыптастыру","білім алушыларда білімді тек өзіндік белсенді әрекеттері арқылы ғана игеруге мүмкін деген түсінік қалыптастыру","білім алушылардың өзіндік пікір құрастырып, ой-толғаныс пен рефлекция арқылы проблемаларды шешуі","әрбір сабақта әлеммен, нақты өмірмен байланыс орнату","білім алушыларға бағыт-бағдар беріп, оларды ынталандыру","білімді белсенді түрде игеру процесін дәстүрлі тәсілдер арқылы ұйымдастыру"],correct:[2,4]},
@@ -343,14 +323,21 @@ let authBusy = false;
 let currentUser = null;      // { id, username, name }
 let currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
 let bootReady = false;
+let dbQuestionsLoaded = false;
 
-// ---- Admin panel state ----
-let adminTab = 'results';        // 'results' | 'questions'
-let adminAttempts = [];
-let adminQuestions = [];
-let adminLoading = false;
-let adminMessage = '';
-let editingQuestion = null;      // question object being edited, or {} for new
+async function loadQuestionsFromDB(){
+  try{
+    const { data, error } = await sb.from('pedagogy_questions').select('question, options, correct').order('id');
+    if(error) throw error;
+    if(data && data.length){
+      QUESTIONS.length = 0;
+      data.forEach(row => QUESTIONS.push({ q: row.question, opts: row.options, correct: row.correct }));
+    }
+    dbQuestionsLoaded = true;
+  } catch(e){
+    console.error('Не удалось загрузить вопросы из Supabase, используем встроенный набор:', e);
+  }
+}
 
 async function refreshProgress(){
   if(!currentUser) return;
@@ -384,6 +371,7 @@ function clearSession(){
 }
 
 async function initSession(){
+  await loadQuestionsFromDB();
   const saved = loadSession();
   if(saved?.id){
     currentUser = saved;
@@ -533,7 +521,7 @@ async function submitAuth(e){
     if(authMode==='login'){
       const { data, error } = await sb.rpc('login_username', { p_username: login, p_password: password });
       if(error) throw error;
-      currentUser = { id: data.id, username: data.username, name: data.name || data.username, isAdmin: !!data.isAdmin };
+      currentUser = { id: data.id, username: data.username, name: data.name || data.username };
       saveSession(currentUser);
       await refreshProgress();
     } else {
@@ -541,7 +529,7 @@ async function submitAuth(e){
       if(regError) throw regError;
       const { data, error } = await sb.rpc('login_username', { p_username: login, p_password: password });
       if(error) throw error;
-      currentUser = { id: data.id, username: data.username, name: data.name || data.username, isAdmin: !!data.isAdmin };
+      currentUser = { id: data.id, username: data.username, name: data.name || data.username };
       saveSession(currentUser);
       await refreshProgress();
     }
@@ -559,131 +547,6 @@ function logout(){
   currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
   clearSession();
   authMessage=''; render();
-}
-
-// ---- Admin panel ----
-function openAdmin(){
-  if(!currentUser?.isAdmin) return;
-  state.screen = 'admin';
-  adminTab = 'results';
-  editingQuestion = null;
-  adminMessage = '';
-  loadAdminData();
-  render();
-}
-function closeAdmin(){
-  state.screen = 'start';
-  editingQuestion = null;
-  render();
-}
-function switchAdminTab(tab){
-  adminTab = tab;
-  editingQuestion = null;
-  adminMessage = '';
-  render();
-}
-
-async function loadAdminData(){
-  if(!currentUser?.isAdmin) return;
-  adminLoading = true; render();
-  try{
-    const [{ data: attempts, error: e1 }, { data: questions, error: e2 }] = await Promise.all([
-      sb.rpc('admin_get_all_attempts', { p_admin_id: currentUser.id }),
-      sb.rpc('admin_get_all_questions', { p_admin_id: currentUser.id })
-    ]);
-    if(e1) throw e1;
-    if(e2) throw e2;
-    adminAttempts = attempts || [];
-    adminQuestions = questions || [];
-  } catch(e){
-    adminMessage = 'Деректерді жүктеу кезінде қате: ' + (e?.message || '');
-  }
-  adminLoading = false; render();
-}
-
-function startNewQuestion(){
-  editingQuestion = { id: null, question: '', opts: ['', ''], correct: [0] };
-  render();
-}
-function startEditQuestion(id){
-  const q = adminQuestions.find(x=>x.id===id);
-  if(!q) return;
-  editingQuestion = { id: q.id, question: q.question, opts: [...q.options], correct: [...q.correct] };
-  render();
-}
-function cancelEditQuestion(){
-  editingQuestion = null;
-  render();
-}
-function editQAddOption(){
-  if(!editingQuestion) return;
-  editingQuestion.opts.push('');
-  render();
-}
-function editQRemoveOption(idx){
-  if(!editingQuestion || editingQuestion.opts.length <= 2) return;
-  editingQuestion.opts.splice(idx, 1);
-  editingQuestion.correct = editingQuestion.correct.filter(c=>c!==idx).map(c=>c>idx?c-1:c);
-  render();
-}
-function editQUpdateOptionText(idx, val){
-  if(!editingQuestion) return;
-  editingQuestion.opts[idx] = val;
-}
-function editQUpdateQuestionText(val){
-  if(!editingQuestion) return;
-  editingQuestion.question = val;
-}
-function editQToggleCorrect(idx){
-  if(!editingQuestion) return;
-  const c = editingQuestion.correct;
-  if(c.includes(idx)) editingQuestion.correct = c.filter(x=>x!==idx);
-  else editingQuestion.correct = [...c, idx];
-  render();
-}
-async function saveEditingQuestion(){
-  if(!editingQuestion || !currentUser?.isAdmin) return;
-  // pull latest textarea/input values from DOM before saving (controlled-less inputs)
-  const qText = document.getElementById('adminQText')?.value.trim() || '';
-  const optInputs = document.querySelectorAll('.admin-opt-input');
-  const opts = Array.from(optInputs).map(i=>i.value.trim());
-  editingQuestion.question = qText;
-  editingQuestion.opts = opts;
-
-  if(!qText){ adminMessage = 'Сұрақ мәтінін енгізіңіз'; render(); return; }
-  if(opts.some(o=>!o)){ adminMessage = 'Барлық жауап өрістерін толтырыңыз'; render(); return; }
-  if(editingQuestion.correct.length < 1){ adminMessage = 'Кемінде бір дұрыс жауапты белгілеңіз'; render(); return; }
-
-  adminLoading = true; render();
-  try{
-    const { error } = await sb.rpc('admin_upsert_question', {
-      p_admin_id: currentUser.id,
-      p_id: editingQuestion.id,
-      p_question: qText,
-      p_options: opts,
-      p_correct: editingQuestion.correct
-    });
-    if(error) throw error;
-    editingQuestion = null;
-    adminMessage = 'Сұрақ сәтті сақталды';
-    await loadAdminData();
-  } catch(e){
-    adminMessage = 'Қате: ' + (e?.message || '');
-    adminLoading = false; render();
-  }
-}
-async function deleteQuestionAdmin(id){
-  if(!currentUser?.isAdmin) return;
-  if(!confirm('Бұл сұрақты өшіргіңіз келе ме?')) return;
-  adminLoading = true; render();
-  try{
-    const { error } = await sb.rpc('admin_delete_question', { p_admin_id: currentUser.id, p_id: id });
-    if(error) throw error;
-    await loadAdminData();
-  } catch(e){
-    adminMessage = 'Қате: ' + (e?.message || '');
-    adminLoading = false; render();
-  }
 }
 
 function renderAuth(){
@@ -714,7 +577,7 @@ function renderStart(){
   return `
   <div class="header">
     <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">EMTIHAN · PEDAGOGIKA NEGIZDERI</div></div>
-    <div class="user-pill"><strong>${currentUser?.name || currentUser?.username || 'Пользователь'}</strong><span>•</span>${currentUser?.isAdmin?`<button class="btn btn-sm btn-secondary" onclick="openAdmin()">Админ панель</button><span>•</span>`:''}<button class="btn btn-sm btn-secondary" onclick="logout()">Выйти</button></div>
+    <div class="user-pill"><strong>${currentUser?.name || currentUser?.username || 'Пользователь'}</strong><span>•</span><button class="btn btn-sm btn-secondary" onclick="logout()">Выйти</button></div>
   </div>
   <div class="body-wrap">
     <div class="progress-card">
@@ -844,77 +707,6 @@ function renderResult(){
   </div>`;
 }
 
-function renderAdminResultsTab(){
-  if(!adminAttempts.length) return `<div class="empty-note">Әзірге ешкім тест тапсырған жоқ</div>`;
-  const rows = adminAttempts.map(a => `
-    <tr>
-      <td>${a.name || a.username}</td>
-      <td>${a.username}</td>
-      <td>${a.score} / ${a.max_score}</td>
-      <td>${a.answered}/${a.total_questions}</td>
-      <td>${new Date(a.created_at).toLocaleString('ru-RU')}</td>
-    </tr>`).join('');
-  return `
-  <table class="admin-table">
-    <thead><tr><th>Аты</th><th>Логин</th><th>Балл</th><th>Жауап берілді</th><th>Күні</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-}
-
-function renderAdminQuestionEditor(){
-  const eq = editingQuestion;
-  const opts = eq.opts.map((o,idx)=>`
-    <div class="admin-opt-row">
-      <input type="text" class="admin-opt-input" value="${(o||'').replace(/"/g,'&quot;')}" oninput="editQUpdateOptionText(${idx}, this.value)" placeholder="Жауап нұсқасы ${idx+1}">
-      <input type="checkbox" ${eq.correct.includes(idx)?'checked':''} onclick="editQToggleCorrect(${idx})" title="Дұрыс жауап">
-      ${eq.opts.length>2?`<button class="btn btn-sm btn-secondary" onclick="editQRemoveOption(${idx})">✕</button>`:''}
-    </div>`).join('');
-  return `
-  <div class="start-card" style="text-align:left;margin-top:0">
-    <div class="start-title" style="font-size:20px">${eq.id?'Сұрақты өңдеу':'Жаңа сұрақ қосу'}</div>
-    <div class="field" style="margin-top:16px"><label>Сұрақ мәтіні</label><textarea id="adminQText" oninput="editQUpdateQuestionText(this.value)">${(eq.question||'').replace(/</g,'&lt;')}</textarea></div>
-    <div class="field"><label>Жауап нұсқалары (белгі — дұрыс жауап)</label>${opts}</div>
-    <button class="btn btn-sm btn-secondary" onclick="editQAddOption()" style="margin-bottom:16px">+ Нұсқа қосу</button>
-    <div style="display:flex;gap:10px">
-      <button class="btn" onclick="saveEditingQuestion()" ${adminLoading?'disabled':''}>${adminLoading?'Сақталуда…':'Сақтау'}</button>
-      <button class="btn btn-secondary" onclick="cancelEditQuestion()">Бас тарту</button>
-    </div>
-  </div>`;
-}
-
-function renderAdminQuestionsTab(){
-  if(editingQuestion) return renderAdminQuestionEditor();
-  const rows = adminQuestions.map(q => `
-    <div class="admin-q-row">
-      <div class="admin-q-text">#${q.id} — ${q.question}</div>
-      <div class="admin-q-actions">
-        <button class="btn btn-sm btn-secondary" onclick="startEditQuestion(${q.id})">Өңдеу</button>
-        <button class="btn btn-sm btn-secondary" onclick="deleteQuestionAdmin(${q.id})">Өшіру</button>
-      </div>
-    </div>`).join('');
-  return `
-  <button class="btn" onclick="startNewQuestion()" style="margin-bottom:18px">+ Жаңа сұрақ қосу</button>
-  ${adminQuestions.length ? rows : `<div class="empty-note">Сұрақтар жоқ</div>`}`;
-}
-
-function renderAdmin(){
-  return `
-  <div class="header">
-    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">ӘКІМШІ ПАНЕЛІ</div></div>
-    <div class="user-pill"><strong>${currentUser?.name || currentUser?.username}</strong><span>•</span><button class="btn btn-sm btn-secondary" onclick="closeAdmin()">Тестке оралу</button></div>
-  </div>
-  <div class="body-wrap">
-    <div class="admin-tabs">
-      <div class="admin-tab ${adminTab==='results'?'active':''}" onclick="switchAdminTab('results')">Нәтижелер</div>
-      <div class="admin-tab ${adminTab==='questions'?'active':''}" onclick="switchAdminTab('questions')">Сұрақтар</div>
-    </div>
-    ${adminMessage?`<div class="admin-msg">${adminMessage}</div>`:''}
-    <div class="progress-card">
-      ${adminLoading && !editingQuestion ? `<div class="empty-note">Жүктелуде…</div>` : (adminTab==='results' ? renderAdminResultsTab() : renderAdminQuestionsTab())}
-    </div>
-  </div>`;
-}
-
 function renderLoading(){
   return `<div class="auth-screen"><div class="auth-card" style="text-align:center">
     <div class="auth-title" style="font-size:20px">Жүктелуде…</div>
@@ -926,10 +718,10 @@ function render(){
   const app = document.getElementById('app');
   if(!bootReady){ app.innerHTML = renderLoading(); return; }
   if(!currentUser){ app.innerHTML = renderAuth(); }
-  else if(state.screen==='admin' && currentUser.isAdmin) app.innerHTML = renderAdmin();
   else if(state.screen==='start') app.innerHTML = renderStart();
   else if(state.screen==='test') app.innerHTML = renderTest();
   else app.innerHTML = renderResult();
+  window.scrollTo({top:0, behavior:'instant'});
 }
 
 render();
