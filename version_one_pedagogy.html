@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Педагогика | Емтихан платформасы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0d14;--bg2:#111520;--bg3:#181d2e;--bg4:#1e253a;
+  --border:#ffffff12;--border2:#ffffff1e;--border3:#ffffff2a;
+  --text:#e8eaf0;--text2:#9ba3b8;--text3:#5c6480;
+  --accent:#4f7cff;--accent2:#6b93ff;--accent-bg:#4f7cff15;
+  --green:#22c55e;--green-bg:#22c55e14;
+  --red:#ef4444;--red-bg:#ef444414;
+  --amber:#f59e0b;--amber-bg:#f59e0b14;
+  --purple:#a855f7;--purple-bg:#a855f714;
+  --radius:10px;--radius-lg:16px;--radius-xl:24px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+}
+body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+#app{min-height:100vh;display:flex;flex-direction:column;align-items:center;width:100%}
+
+/* Background grid */
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.35;pointer-events:none;z-index:0}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(79,124,255,.10) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+.shell{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+
+/* Header */
+.header{width:100%;max-width:860px;padding:22px 20px 0;display:flex;align-items:center;justify-content:space-between;margin:0 auto}
+.brand{display:flex;flex-direction:column}
+.brand-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.timer{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--text);background:var(--bg2);border:1px solid var(--border2);padding:8px 16px;border-radius:var(--radius)}
+.timer.warning{color:var(--amber);border-color:rgba(245,158,11,.3)}
+.timer.danger{color:var(--red);border-color:rgba(239,68,68,.3);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+.body-wrap{width:100%;max-width:860px;padding:24px 20px 60px;flex:1;display:flex;flex-direction:column;align-items:center;margin:0 auto}
+
+/* Start screen */
+.start-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:44px 40px;text-align:center;margin-top:40px}
+.start-title{font-size:28px;font-weight:800;letter-spacing:-.7px;margin-bottom:10px}
+.start-sub{color:var(--text2);font-size:14.5px;max-width:480px;margin:0 auto 28px}
+.start-stats{display:flex;justify-content:center;gap:14px;margin-bottom:32px;flex-wrap:wrap}
+.start-stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 22px;min-width:120px}
+.start-stat-val{font-size:22px;font-weight:700;color:var(--accent2)}
+.start-stat-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.hint-box{background:var(--amber-bg);border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:14px 18px;text-align:left;font-size:13px;color:var(--text2);margin-bottom:28px}
+.hint-box b{color:var(--amber)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 30px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Onest',sans-serif;transition:all .15s;text-decoration:none;background:var(--accent);color:#fff}
+.btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.btn-secondary:hover{background:var(--bg4);border-color:var(--border3)}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:10px}
+.btn-full{width:100%;justify-content:center}
+
+/* Nav pills */
+.q-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;justify-content:center;width:100%}
+.q-dot{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);color:var(--text3);background:var(--bg3);transition:all .15s}
+.q-dot:hover{border-color:var(--accent2);color:var(--accent2)}
+.q-dot.answered{background:var(--accent-bg);border-color:var(--accent);color:var(--accent2)}
+.q-dot.current{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Question card */
+.question-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);padding:30px;margin-bottom:20px;text-align:center;display:flex;flex-direction:column;align-items:center;width:100%}
+.q-header{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px}
+.q-num{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+.q-badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
+.q-badge.multi{background:var(--purple-bg);color:var(--purple)}
+.q-badge.single{background:var(--accent-bg);color:var(--accent2)}
+.q-body{font-size:16px;color:var(--text);line-height:1.7;margin-bottom:22px;font-weight:500;text-align:center}
+.q-instruction{font-size:12.5px;color:var(--text3);margin-bottom:14px;font-style:italic;text-align:center}
+
+.options{display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;margin:0 auto}
+.option{display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:var(--radius);border:1.5px solid var(--border);cursor:pointer;transition:all .15s;background:var(--bg3);width:min(100%,640px);text-align:left}
+.option:hover{border-color:var(--accent);background:var(--accent-bg)}
+.option.selected{border-color:var(--accent);background:var(--accent-bg)}
+.option.correct{border-color:var(--green);background:var(--green-bg)}
+.option.incorrect{border-color:var(--red);background:var(--red-bg)}
+.option.missed{border-color:var(--amber);background:var(--amber-bg)}
+.option-box{width:20px;height:20px;border-radius:6px;background:var(--bg4);border:1.5px solid var(--border3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:transparent;flex-shrink:0;transition:all .15s}
+.option.selected .option-box{background:var(--accent);border-color:var(--accent);color:#fff}
+.option.correct .option-box{background:var(--green);border-color:var(--green);color:#fff}
+.option.incorrect .option-box{background:var(--red);border-color:var(--red);color:#fff}
+.option.missed .option-box{background:var(--amber);border-color:var(--amber);color:#fff}
+.option-letter{font-size:12px;font-weight:700;color:var(--text3);width:20px;flex-shrink:0;text-align:center}
+.option.selected .option-letter,.option.correct .option-letter,.option.incorrect .option-letter{color:var(--text2)}
+.option-text{font-size:14.5px;color:var(--text);line-height:1.5;padding-top:2px}
+
+.nav-buttons{display:flex;justify-content:space-between;gap:12px;margin-top:8px;width:100%;max-width:640px}
+
+/* Result */
+.result-header{text-align:center;padding:44px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);margin-bottom:24px;margin-top:20px}
+.result-score{font-size:68px;font-weight:800;letter-spacing:-3px;background:linear-gradient(135deg,var(--accent2),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-label{font-size:15px;color:var(--text2);margin-top:6px}
+.result-sub{font-size:13px;color:var(--text3);margin-top:14px}
+.result-actions{display:flex;justify-content:center;gap:12px;margin-top:26px}
+
+.review-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:14px}
+.review-card.wrong{border-left:3px solid var(--red)}
+.review-card.right{border-left:3px solid var(--green)}
+.review-card.partial{border-left:3px solid var(--amber)}
+.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.review-num{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.section-title{font-size:16px;font-weight:700;margin:30px 0 14px}
+
+/* Auth + progress polish */
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:26px 16px;width:100%}
+.auth-card{width:min(100%,500px);background:linear-gradient(145deg,rgba(24,29,46,.95),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:28px;padding:32px 30px;box-shadow:0 20px 80px rgba(0,0,0,.35);position:relative;overflow:hidden;backdrop-filter:blur(18px)}
+.auth-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(111,143,255,.18),transparent 42%);pointer-events:none}
+.auth-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:var(--accent-bg);color:var(--accent2);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+.auth-title{font-size:30px;font-weight:800;letter-spacing:-.6px;margin-bottom:8px}
+.auth-sub{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.auth-tabs{display:flex;gap:8px;margin-bottom:20px}
+.auth-tab{flex:1;text-align:center;padding:11px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text2);font-weight:700;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 10px 24px rgba(79,124,255,.25)}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.field label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.field input{width:100%;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text);padding:13px 14px;border-radius:12px;font-size:14px;outline:none;transition:border-color .2s,background .2s}
+.field input:focus{border-color:var(--accent2);background:rgba(255,255,255,.06)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 12px 24px rgba(79,124,255,.2)}
+.btn-primary:hover{box-shadow:0 14px 30px rgba(79,124,255,.3)}
+.auth-message{margin-top:14px;padding:10px 12px;border-radius:12px;font-size:13px;border:1px solid rgba(239,68,68,.22);background:rgba(239,68,68,.12);color:#ffd3d3}
+.auth-message.success{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.12);color:#dff8e8}
+.user-pill{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2)}
+.user-pill strong{color:var(--text);font-size:13px}
+.progress-card{width:100%;background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:24px;padding:24px 24px 20px;box-shadow:0 18px 60px rgba(0,0,0,.28);margin-bottom:20px}
+.progress-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.progress-sub{font-size:13px;color:var(--text2);margin-bottom:18px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.stat-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:13px 12px;min-height:88px}
+.stat-label{font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.stat-value{font-size:22px;font-weight:800;color:var(--accent2)}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text2);font-size:13px}
+.history-item .right{color:var(--text3);font-size:12px}
+.start-card{background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:24px;padding:34px 30px;text-align:center;margin-top:8px;box-shadow:0 20px 70px rgba(0,0,0,.28)}
+.start-title{font-size:28px;font-weight:800;letter-spacing:-.7px;margin-bottom:10px}
+.start-sub{color:var(--text2);font-size:14.5px;max-width:560px;margin:0 auto 24px}
+.start-stats{display:flex;justify-content:center;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.start-stat{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:14px 18px;min-width:120px}
+.start-stat-val{font-size:22px;font-weight:800;color:var(--accent2)}
+.start-stat-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.hint-box{background:linear-gradient(90deg,rgba(245,158,11,.15),rgba(245,158,11,.06));border:1px solid rgba(245,158,11,.25);border-radius:16px;padding:14px 16px;text-align:left;font-size:13px;color:var(--text2);margin-bottom:24px}
+.q-nav{margin-bottom:24px}
+.q-dot{width:38px;height:38px;border-radius:12px;font-weight:800}
+.question-card{background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:24px;padding:28px;box-shadow:0 18px 60px rgba(0,0,0,.24)}
+.option{padding:15px 16px;border-radius:16px}
+.option:hover{transform:translateY(-1px)}
+.result-header{background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:24px;padding:34px 28px;box-shadow:0 20px 70px rgba(0,0,0,.24)}
+.review-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;padding:18px 18px 16px}
+.review-card.right{border-left:4px solid var(--green)}
+.review-card.wrong{border-left:4px solid var(--red)}
+.review-card.partial{border-left:4px solid var(--amber)}
+
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .header,.body-wrap{padding-left:14px;padding-right:14px}
+  .question-card{padding:20px}
+  .start-card{padding:28px 18px}
+  .result-score{font-size:52px}
+  .stats-grid{grid-template-columns:1fr}
+  .auth-card{padding:26px 20px}
+  .auth-title{font-size:26px}
+  .user-pill{width:100%;justify-content:space-between}
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://fkrdtcorlhobcfcroxza.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrcmR0Y29ybGhvYmNmY3JveHphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMDc4OTYsImV4cCI6MjA5OTc4Mzg5Nn0.5v9XqidHzXF_D7C2SqlCFWIqdCisu_S3XrzvZuU1oXk';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const QUESTIONS = [
+{q:"Математиканы оқытуда басшылыққа алатын негізгі дидактикалық қағидалалар:",opts:["тәрбиелеу қағидасы","пәнді оқыту","көрнекілік қағидасы","ойлау қағидасы","әдістемелік жүйе","ғылымилық қағида","жүйелілік қағидасы"],correct:[1,3,7]},
+{q:"Математикалық сөйлемдердің маңызды түрлеріне жататындар",opts:["Постулаттар","геометриялық ұғым","Аксиомалалар","Кеңістік","Теоремалар","Абстракт","Анықтамалар"],correct:[1,3,5]},
+{q:"Математиканы оқытуда шексіз шығармашылық процесс",opts:["Үйрену","Оқыту","Ойлау","Тәжірибе","Түсіну","Іздену","Зерттеу"],correct:[2]},
+{q:"Математиканы оқыту әдістемесінің шартты түрде бөлінетін салалары",opts:["оқыту әдістемесі","шынайы әдістемесі","үйрету әдістемесі","нақты әдістемесі","жалпы әдістемесі","математикалық логика","арнайы әдістемесі"],correct:[4,5,7]},
+{q:"Математикалық сөйлемге жататындар",opts:["теңдеулер мен теңсіздіктер","педагогика,психология","теорема,аксиома,постулат","ұғым, қабылдау, сезіну","анықтама , логика","функциялар","формулалар"],correct:[1,3,5]},
+{q:"Таным қызметінде орындалатын жұмыстың мазмұнына қарай эксперименттің бөлінуі",opts:["Бақылау","демонстрациялайтын","Өзіндік","тексеретін","Практикалық","Эксперимент","Салыстыру"],correct:[2,4]},
+{q:"Құрама сабақ құрылымы",opts:["үй тапсырмасын тексеру","реферат жазу","жаттығулар орындау","күрделі сабақ","факультативтік сабақ","жаңа материалды оқу","қорытындылау"],correct:[1,3,6]},
+{q:"Анықталатын обьектіге сәйкес келетін ұғым .",opts:["жай ұғым","сандар ұғымы","дәлелсіз ұғым","анықталған ұғым","күрделі ұғым","анықталмаған ұғым","абстрактілі ұғым"],correct:[4]},
+{q:"Қажетті білімді тиянақтау, баланың субьективті тәжірибесімен байланыс, ынталандыру",opts:["дайындық","көбейту","Амалдар","Дәлелдеу","себеп-салдар","Бекіту","Ажырату"],correct:[1]},
+{q:"Интербелсенді оқытудың негізгі қағидалары :",opts:["таным ортасын құрастыру","әрекет арқылы үйрету/үйрену","компьютерлік техниканы қолдану","интерактивті тақтада жұмыс істеу","модульдік оқыту технологиясын қолдану","білім алушылардың белсенді әрекеті","өмірмен байланыстыру"],correct:[1,2,7]},
+{q:"Оқушыға артық күш түсірмеу үшін есеп шығару үрдісін келесі кезеңге бөлуге болады",opts:["2","3","4","7","1","5","6"],correct:[3]},
+{q:"Кіріспесінде тек қана математикалық берілгендер емес, сонымен қатар, есептің сюжеті бар есептер",opts:["логикалық есеп","жай және құрама","Сызықтық","мәселе есеп","Практикалық","мәтіндік есеп","геометриялық есеп"],correct:[6]},
+{q:"Таным логикалық әдісіне жататындар",opts:["Тексеретін","Бақылау","Өзіндік","Практикалық","Эксперимент","Салыстыру","Талдау"],correct:[6]},
+{q:"Оқытудың көрнекілік әдістерінің түрлері",opts:["сауалнама жүргізу","өз ойын айқындау","Баяндау","демонстрация, иллюстрация, техникалық","Зертханалық","Әңгімелесу","Түсіндіру"],correct:[4]},
+{q:"Объектілер класының бөліктері туралы білімдер негізінде жалпы қорытынды жасалатын, яғни жекеден жалпыға өткенде жасалған ой қорыту",opts:["индукция","Анализ","Аналогия","модель","синтез","дедукция","Абстракция"],correct:[1]},
+{q:"Объектінің кейбір белгілерінің ұқсастығы бойынша, оның басқа белгілерінің ұқсастығы жөнінде пікір қозғалады",opts:["анықтауда","таралған аналогияда","жай аналогияда","Бақылауда","дәлелдеуде","Сұрыптауда","Жүйелеуде"],correct:[3]},
+{q:"Екі айнамалысы бар теңдеулер, теңсіздіктер және олардың жүйелері тақырыбы оқытылатын сынып",opts:["10 сынып","11 сынып","5 сынып","6 сынып","9 сынып","8 сынып","7 сынып"],correct:[5]},
+{q:"Ешбір дәлелдеусіз қабылданатын сөйлем",opts:["геометриялық ұғым","абстракт","Кеңістік","Теорема","Аксиома","Постулат","Гипотеза"],correct:[5]},
+{q:"Затты сипаттайды және сипаттау барысында бірден артық затты қажет етпейді",opts:["Теорема","Дәлелдеу","Аксиома","Қасиет","Ұғым","Сандар","Анықтама"],correct:[4]},
+{q:"Таңдамадағы объектілер немесе бақылаулар саны",opts:["таңдама көлемі","жиындар көлемі","сандық жиынтық","жиынтық көлемі","ықтималдық көлемі","таңдама жиынтық","статистикалық қатар"],correct:[1]},
+{q:"Сабақ құрылымында оқытудың комбинациядағы барлық элементтері болуы",opts:["жалпылау сабағы","шығармашылық сабағы","аралас сабақ","тексеру(бақылау) сабағы","білімді бекіту сабағы","білімді тексеру сабағы","түзету сабағы"],correct:[3]},
+{q:"Егер сандық өрнекте жақша болмаса, бірінші орындалатын амал",opts:["Топтастыру","жақшаға алу","дәрежеге шығару","түбір табу","Азайту","Бөлу","Көбейту"],correct:[3]},
+{q:"Аралас сабаққа мыналар кіреді",opts:["ауызша және жазбаша","бақылау","жаңа білім, білік, дағдыны қалыптастыру","жалпылау сабағы","тексеру","ұйымдастырушылық және мазмұндық жақтар","бағалау"],correct:[1,3,6]},
+{q:"Кредиттік оқыту жүйесінің басты мақсаттары",opts:["сабақты өткізудің жаңа формаларын енгізу","қолданбалы сұрақтарды тақырыпқа енгізу","тақырыптық материалдарды кеңінен қарастыру","оқытуды барынша даралауға жағдайлар жасау","білім алушылардың сабаққа мүмкіндігін жетілдіру","білім алушылардың өзіндік жұмысының тиімділігі мен рөлін арттыру","білім көлемін бір ізге келтіру(унификациялау)"],correct:[4,6,7]},
+{q:"Кейбір қасиеттердің ұғымға тиістілігін немесе тиісті еместігін білдіретін ой",opts:["үлестірмелі пайым","шартсыз пайым","кесімді пайым","жай пайым","күрделі пайым","шартты пайым","жалпы пайым"],correct:[3]},
+{q:"Барлық модельдер көрнекілігіне қарай бөлінеді",opts:["практикалық","материалды және идеалды","білім мен білікті","графикалық-техникалық","логикалық","теориялық","математикалық"],correct:[2]},
+{q:"Интербелсенді оқытудың әрекет арқылы үйрету/үйрену қағидасы",opts:["білімді белсенді игеруді ұйымдастыру","өзіндік белсенді әрекет арқылы игеру","бағыт-бағдар беріп, ынталандыру","шығармашылық жағдайлар қалыптастыру","әлеммен, өмірмен байланыс орнату","жаңалық құрастыруға мүмкіндік беру","практикалық әрекетке негіздеу"],correct:[1,2]},
+{q:"Педагогикалық және әдістемелік әдебиеттерде математиканы оқыту әдістемесіне тән әдістерді келесідей бөліп көрсетеді",opts:["1","2","6","5","3","4","8"],correct:[6]},
+{q:"Математиканы оқыту әдістемесі математика пәнінің ерекшеліктеріне негізделген ғылым",opts:["түрлендіру әдістері","психологиялық жүйесі","тарихи даму жүйесі","оқу-тәрбие жүйесі","заманауи жүйесі","ақпараттық жүйесі","дидактикалық жүйесі"],correct:[4]},
+{q:"Есептер оқыту құралы ретінде келесі функцияларды атқарады",opts:["оқушыларды бейімділікке дағдыландыру","математикалық іс-әрекетке үйрету","зерделілік қасиетін дамыту","дәлдікке талпындыру","оқушылардың ойлау қабілетін дамыту","оқушыларды ұқыптылыққа үйрету","білім, білік және дағдыны қалыптастыру"],correct:[2,5,7]},
+{q:"Кіріспе, машықтандыру бар есептерге теориялық мәліметтерді енгізуді және қорытындылауды жеңілдетуге арналған есептер",opts:["монотонды функция","дидактикалық функция","дифференциалдық функция","сандық функция","дамытушылық функция","танымдық функция","тәрбиелік функция"],correct:[2]},
+{q:"Мұғалімнің басшылығымен орындалатын оқушылардың сапалы іс-әрекеті",opts:["Дәлелдеу","үйрену(оқу)","үйрету (оқу)","сыни ойлау","Тексеру","оқыту үдерісі","жаттығу"],correct:[2]},
+{q:"Оқытудың теориясы мен практикасында жиі кездесетін даралау дәрежесі бойынша орындалатын әр түрлі тәсілдер",opts:["Зертханалық","Практикалық","өз ойын айқындау","мазмұны жүйесіз құрылған","мазмұндары бірдей","сауалнама жүргізу","мазмұны әр түрлі"],correct:[5,7]},
+{q:"Кезінде де бір құбылыстың пайда болуы немесе өзгерісі басқа бір құбылыстың өзгеріске ұшырауына әкелсе, онда бұл құбылыстар себептік-салдарлық байланыста болады",opts:["қалдық әдісі","бақылау әдісі","айырмашылық әдісі","түсіндіру әдісі","ілеспе өзгеріс әдісі","ұқсастық әдісі","практикалық әдіс"],correct:[5]},
+{q:"Оқытудың теориясы мен практикасында жиі кездесетін білім мазмұны бойынша орындалатын тәсілдер",opts:["сауалнама жүргізу","оқулықпен жұмыс","өз ойын айқындау","практикалық жұмыстар","зертханалық және сызбалық жұмыстар","есептерді шешу және салыстыру","сөйлеу әрекеті"],correct:[2,5,6]},
+{q:"Тізбектей бөлу жолымен қандайда бір жиынды өзара қиылыспайтын кластарға жүйелі түрде үлестіру",opts:["Көбейту","Жіктеу","Дәрежелеу","Алу","Ажырату","Салдар","Дәлелдеу"],correct:[2]},
+{q:"Сабақ жоспарының көлеміне қарай түрлері",opts:["Күрделі","Айлық","Жай","Апталық","Күндік","Жылдық","Тоқсандық"],correct:[1,3]},
+{q:"Математикалық объектілер жөніндегі пайымды білдіретін сөйлем",opts:["алгебралық сөйлем","геометриялық сөйлем","логикалық есеп","математикалық сөйлем","есептік сөйлем","сөйлем ұғымы","логикалық өрнек"],correct:[4]},
+{q:"Кез келген дәлелдеудің құрылымды бөліктері",opts:["Ойлау","Аргументтер","Тезис","Демонстрация","Негіздеу","Дәлелдеу","Қорытынды"],correct:[2,3,4]},
+{q:"Сабаққа қойылатын үшінші талап",opts:["Қажетті жабдықтар мен әдістерді таңдау","Міндеттерді ұғынуы","Құрылымының өзгергіштігі","Қызықтылығы","Жаңалығының болуы","Сапалық көрсеткіші","Уақытты үнемдеу"],correct:[1]},
+{q:"Мұғалімдердің біреуі белсенді ойлау қызметіне жіберілетін уақытты мұқият жазып отырады",opts:["Ішінара талдау","Кешенді талдау","Талдау","Психологиялық талдау","Құрылымдық талдау","Педагогикалық талдау","Бақылау"],correct:[2]},
+{q:"Мұғалімге оқушылардың білім, білік, дағдыларының қалыптасу деңгейін анықтауға мүмкіндік береді",opts:["Шығармашылық сабағы","Жалпылау сабағы","Білімді бекіту сабағы","Тексеру сабағы","Білімді тексеру сабағы","Ой-өрісін дамыту","Жаттығу сабағы"],correct:[4]},
+{q:"Өзіндік жұмыстарды қойылған мақсатына байланысты бөлуге болады",opts:["еркіндік және талғамдық","шығармашылық және мазмұндылық","қайталаушылық және коррекциялық","білімділік және қайталаушылық","коррекциялық және білімділік","жаттығушылық және бекітушілік","мазмұндылық және бекітушілік"],correct:[4,6]},
+{q:"Табиғаттың, қоғамның дамуының неғұрлым жалпы заңдылықтарын ойлау",opts:["геометрия","алгебра","психология","Философия","Диалектика","математикалық логика","Педагогика"],correct:[1,2,6]},
+{q:"Ұғымдарды қалыптастыруда аналогияның бір түрі",opts:["биоморфизм","сиигорманизм","геоморфизм","морфизм","Изоморфизм","бақылау","анализ"],correct:[5]},
+{q:"Интербелсенді оқытудың өмірмен байланыс қағидасы",opts:["практикалық әрекетке негіздеу","жаңалық құрастыру","түсінік қалыптастыру","бағыт-бағдар беру","еркін шығармашылық","әлеммен байланыс орнату","тәсілдерді ұйымдастыру"],correct:[1,6]},
+{q:"Интербелсенді оқытудың өзіндік пен дербестікті қалыптастыру қағидасы",opts:["білімді белсенді түрде игеру процесін интербелсенді тәсілдер арқылы ұйымдастыру","білім алушыларда сыни және талдау тұрғысынан ойлаудың дағдыларын қалыптастыру","білім алушыларда білімді тек өзіндік белсенді әрекеттері арқылы ғана игеруге мүмкін деген түсінік қалыптастыру","білім алушылардың өзіндік пікір құрастырып, ой-толғаныс пен рефлекция арқылы проблемаларды шешуі","әрбір сабақта әлеммен, нақты өмірмен байланыс орнату","білім алушыларға бағыт-бағдар беріп, оларды ынталандыру","білімді белсенді түрде игеру процесін дәстүрлі тәсілдер арқылы ұйымдастыру"],correct:[2,4]},
+{q:"Аналогия түрлері:",opts:["Біртұтас аналогия","Жеке аналогия","Біріккен аналогия","Тарамды аналогия","Қатаң аналогия","Қарапайым аналогия","Жалпы аналогия"],correct:[4,5]},
+{q:"Терістеу көрсетілген анықтамалар",opts:["Қосу деп қосындыны табу амалын айтамыз","Аксиома дегеніміз-дәлелді қажет етпейтін тұжырым","Сызықтық теңдеу деп екі шешімі болмайтын теңдеуді айтамыз","Бөлу дегеніміз-бөлудің нәтижесі","Көбейту дегеніміз – көбейтудің нәтижесі","Квадрат дегеніміз-барлық қабырғалары тең тік төртбұрыш","Трапеция екі қабырғасы параллель, ал екі қабырғасы параллель емес төртбұрыш"],correct:[2,3,7]},
+{q:"Көпжақтар :",opts:["төртбұрыш","Октаэдр","цилиндр","трапеция","параллелограмм","пирамида","призма"],correct:[2,6,7]},
+{q:"Математика сабағы:",opts:["оқытуды ұйымдастырудың қосымша формасы","оқытуды ұйымдастырудың негізгі формасы","мұғалімнің ғана іс-әрекетін қамтиды","мектепте математиканы дербес оқыту түрі","оқушылар мен мұғалімнің бірлескен іс-әрекетін қамтиды","мектепте математиканы жаппай оқытудың түрі","оқытудың әдісі"],correct:[2,5,6]},
+{q:"Математика сабақтарында оқышы білімін тексерудің формалары:",opts:["ішінара тексеру","топтық тексеру","апталық тексеру","күнара тексеру","айлық тексеру","дербес тексеру","фронтальды тексеру"],correct:[2,6,7]},
+{q:"Жалпы орта білімберетін мектепте математиканы оқыту төмендегі курстарды оқып-игеру арқылы жүзеге асырылады:",opts:["Арифметика","Математика","Сандар теориясы","Тригонометрия","Логика","Алгебра және геометрия","Алгебра және анализ бастамалары"],correct:[2,6,7]},
+{q:"Математика сабақтарының түрлері:",opts:["салыстыру сабағы","білімді жалпылау және жүйелеу сабағы, аралас сабақ","түсіндіру және білімді қолдану сабақтары","күрделі және кешенді сабақтар","түрлендіру сабағы","жаңа материалмен таныстыру және өткенді бекіту сабақтары","білім мен білікті қолдану сабағы, білім мен білікті тексеру және түзету сабағы"],correct:[2,6,7]},
+{q:"Сабақтың құрылымы:",opts:["Жетілдіру","Өзектендіру","Дерексіздендіру","Кемелдендіру","Салыстыру","Құру","Қолдану"],correct:[2,6,7]},
+{q:"Семинар сабақтарының негізгі түрлері:",opts:["үйлестіру және жүйелеу семинарлары","кіріспе және шолу семинарлары","дағдылану және бекіту семинарлары","«дөңгелек орындық» түрінде өтетін семинар","дамыту және қалыптастыру семинарлары","«дөңгелек үстел» түрінде өтетін семинар","ізденіс семинары, семинар-көрме"],correct:[2,6,7]},
+{q:"Қазіргі заманғы математика мұғалімі:",opts:["сабақ беруші","оқушылардың оқу-танымдық қызметін басқарушы","математикалық білімдерді баяндаушы","оқу материалын түсіндіруші","математикалық білімдерді үйретуші","оқушылардың оқу-танымдық қызметін ұйымдастырушы","оқу/оқыту үдерісінің менеджері"],correct:[2,6,7]},
+{q:"Қазіргі заманғы дидактикада бақылау мынадай түрлерге бөлінеді:",opts:["апталық бақылау","ағымдық бақылау","айлық бақылау","ішінара бақылау","тұтастай бақылау","аралық бақылау","қорытынды бақылау"],correct:[2,6,7]},
+{q:"Өзіндік жұмыстардың даралау дәрежесі бойынша бөлінуі:",opts:["формалары әр түрлі,бірақ бірдей әдіспен орындалатын өзіндік жұмыстар","мазмұндары әр түрлі, бірақ бірдей тәсілмен орындалатын өзіндік жұмыстар","мақсаттары әр түрлі,бірақ бірдей жолмен орындалатын өзіндік жұмыстар","формалары бірдей,бірақ әр түрлі жолмен орындалатын өзіндік жұмыстар","мазмұндары бірдей, бірақ әр түрлі тәсілмен орындалатын өзіндік жұмыстар","мазмұндары әр түрлі және әр түрлі тәсілдермен орындалатын өзіндік жұмыстар","формалары әр түрлі және әртүрлі әдіспен орындалатын өзіндік жұмыстар"],correct:[2,5,6]},
+{q:"Математиканы оқытуда басшылыққа алынатын негізгі дидактикалық қағидалар:",opts:["сәйкестілік және қалыптастырушылық қағидалары","ғылымилық, білімнің беріктілігі, және тәрбиелілік қағидалары","сәйкессіздік және жүйесіздік қағидалары","әдістамалық және алгоритмдік қағидалар","жасампаздық және ескерушілік қағидалары","саналылық және белсенділік, жүйелілік және реттілік қағидалары","көрнекілік және түсініктілік қағидалары"],correct:[2,6,7]},
+{q:"Салыстыру :",opts:["оқытылатын субъектілердің елеулі белгілерін бөліп көрсету","оқытылатын объектілердің елеулі белгілерін бөліп көрсету","оқытылмайтын објектілердің елеулі белгілерін бөліп көрсету","объектіні басқадан ерекшелемейтін белгілерді табу","объектіні басқадан ерекшелемейтіндей белгілерді табу","объектіні басқадан ерекшелейтін белгілерді табу","осы белгілер арқылы объектілерді салыстыру"],correct:[2,6,7]},
+{q:"Оқушылардың танымдық әрекетінің деңгейімен анықталатын оқыту әдістері:",opts:["Дәріс","проблемалық іздеу әдістері","сұрақ-жауап әдісі","әңгіме әдісі","сөздік әдістер","өздік жұмыстар","репродуктивті әдістер"],correct:[2,6,7]},
+{q:"Жалпылау - :",opts:["оқытылатын объектілердің ортақ болмайтын белгілерін бөліп алу;","қарастырылып отырған объектілерді салыстыру","оқытылмайтын объектілердің елеулі белгілерін бөліп көрсету","оқытылатын объектілердің елеулі белгілерін бөліп көрсету","оқытылатын кітаптардың белгілерін бөліп көрсету","оларды осы белгілер бойынша біріктіру","олардың ішіндегі ең бастысын, ортақ белгілерін бөліп алу"],correct:[2,6,7]},
+{q:"Анықтама берілмейтін ұғымдар:",opts:["Сәуле","Сан","Кесінді","Функция","Дөңгелек","Нүкте","Шама"],correct:[2,6,7]},
+{q:"Ұғыммен жұмыс істеу әдістемесі мынадай кезеңдерден тұрады:",opts:["жоспарлау кезеңі","дайындық кезеңі","дәлелдеу кезеңі","жобалау кезеңі","анықтау кезеңі","негізгі және бекіту кезеңдері","кәсіптік кезең"],correct:[2,6,7]},
+{q:"Теоремаларды дәлелдеудің негізгі тәсілдері:",opts:["ерекше тәсілдер","аналитикалық тәсілдер","көмескі тәсілдер","синтетикалық тәсілдер","айқын тәсілдер","қосалқы тәсілдер","императивті тәсілдер"],correct:[2,4,6]},
+{q:"Есептердің дидактикалық мақсатына қарай алғандағы негізгі түрлері:",opts:["жай есептер","танымдық есептер","құрама есептер","салу есептері","дамыту есептері","машықтандыру есептері","сюжетті есептер"],correct:[2,5,6]},
+{q:"Математиканың даму тарихының алғашқы үш кезеңін көрсетіп беріңіз:",opts:["математиканың бөліну кезеңі","математиканың пайда болу кезеңі","тұрақты шамалар математикасы кезеңі","қазіргі математика кезеңі","жүйелі шамалар математикасы кезеңі","классикалық жоғары математика кезеңі","физикалық математика кезеңі"],correct:[2,3,6]},
+{q:"Математиканың даму тарихының cоңғы үш кезеңін көрсетіп беріңіз:",opts:["математиканың пайда болу кезеңі","тұрақты шамалар математикасы кезеңі","математиканың бөліну кезеңі","физикалық математика кезеңі","жүйелі шамалар математикасы кезеңі","классикалық жоғары математика кезеңі","қазіргі математика кезеңі"],correct:[2,6,7]},
+{q:"Дәлелдеудің аналитикалық тәсілінің негізгі түрлері:",opts:["оңға және солға қарай талдау тәсілі","жоғарыға және төменге қарай талдау тәсілі","артқа және алдыға қарай талдау тәсілі","вертикаль және горизонталь талдау тәсілі","интеграл және дифференциал талдау тәсілі","ортаға және шетке қарай талдау тәсілі","сапалық және сандық талдау тәсілі"],correct:[2]},
+{q:"Оқу үдерісінде алатын орнына қарай есептерді",opts:["оқыту әдісі және оқыту мақсаты ретінде қарастырады","оқыту мақсаты және оқыту құралы ретінде қарастырады","оқыту мақсаты және қағидасы ретінде қарастырады","оқыту формасы және оқыту әдісі ретінде қарастырады","оқыту мазмұны және оқыту әдісі ретінде қарастырады","оқытудың формасы және қағидасы ретінде","оқытудың мазмұны мен тәсілі ретінде"],correct:[2]},
+{q:"Математиканы оқыту әдістемеcін шартты түрде мынадай бөлімдерге бөлуге болады:",opts:["математиканы оқытудың жалпы әдістемесі және жалқы әдістемесі","математиканы оқытудың жалпы әдістемесі және дербес әдістемесі","математиканы оқытудың жеке әдістемесі және біртұтас әдістемесі","математиканы оқытудың жалпы әдістемесі және ерекше әдістемесі","математиканы оқытудың практикалық әдістемесі және көрнекі әдістемесі","математиканы оқытудың логикалық және тарихи әдістемесі","математиканы оқытудың теориялық және практикалық әдістемесі"],correct:[2]},
+{q:"Математиканы оқытудың дербес әдістемеcін шартты түрде мынадай бөлімдерге бөлуге болады:",opts:["математиканы оқытудың жеке әдістемесі және біртұтас әдістемесі","математиканы оқытудың арнайы әдістемесі және нақты әдістемесі","математиканы оқытудың жалпы әдістемесі және ерекше әдістемесі","математиканы оқытудың практикалық әдістемесі және көрнекі әдістемесі","математиканы оқытудың жалпы әдістемесі және жалқы әдістемесі","математиканы оқытудың жүйелі және жүйесіз әдістемесі","математиканы оқытудың жалпы және арнайы әдістемесі"],correct:[2]},
+{q:"«Дедукция» сөзінің мағынасы - :",opts:["«сәйкестік»","«қорытындылау»","«ұқсастық»","«сынақ»","«тәжірибе»","«салыстыру»","«талдау»"],correct:[2]},
+{q:"«Аналогия» сөзінің мағынасы - :",opts:["«қорытындылау»","«ұқсастық»","«шығару»","«сынақ»","«тәжірибе»","«салыстыру»","«зерттеу»"],correct:[2]},
+{q:"Есептер қарастырылатын объектінің сипатына қарай былайша жіктеледі:",opts:["арифметикалық, алгебралық, геометриялық, т.б. есептер","практикалық және математикалық есептер","жай және құрама есептер","есептеуге,дәлелдеуге,зерттеуге,түрлендіруге және т.б. берілген есептер","мәтінді, сюжетті және абстрактілі-затты есептер","теориялық және қолданбалы есептер","ашық және жабық есептер"],correct:[2]},
+{q:"Есептер математикалық мағынасына қарай былайша жіктеледі:",opts:["практикалық және математикалық есептер","арифметикалық, алгебралық, геометриялық, тригонометриялық, комбинаторлық, т.б. есептер","практикалық, логикалық, графиктік, теориялық, т.б. есептер","есептеуге,дәлелдеуге,зерттеуге,түрлендіруге,құрастыруға,салуға және т.б. берілген есептер","мәтінді, сюжетті және абстрактілі-затты есептер","логикалық есептер","графиктік есептер"],correct:[2]},
+{q:"Есептер шығару тәсіліне қарай былайша жіктеледі:",opts:["практикалық және математикалық есептер","практикалық,арифметикалық, алгебралық, графиктік,геометриялық, комбинаторлық, т.б. есептер","жай және құрама есептер","есептеуге,дәлелдеуге,зерттеуге,түрлендіруге,құрастыруға,салуға және т.б. берілген есептер","мәтінді, сюжетті және абстрактілі-затты есептер","аналитикалық есептер","стандартты есептер"],correct:[2]},
+{q:"Есептер қойылатын талаптардың сипатына қарай былайша жіктеледі:",opts:["практикалық және математикалық есептер","есептеуге, дәлелдеуге, зерттеуге, түрлендіруге, құрастыруға, салуға және т.б. берілген есептер","практикалық, арифметикалық, алгебралық,графиктік, геометриялық, комбинаторлық, т.б. есептер","жай және құрама есептер","мәтінді, сюжетті және абстрактілі-затты есептер","күрделі есептер","стандартты емес есептер"],correct:[2]},
+{q:"Есептер тіліне байланысты былайша жіктеледі:",opts:["практикалық және математикалық есептер","мәтінді, сюжетті және абстрактілі-затты есептер","практикалық, арифметикалық, алгебралық,графиктік, геометриялық, комбинаторлық, т.б. есептер","есептеуге,дәлелдеуге,зерттеуге,түрлендіруге,құрастыруға,салуға және т.б. берілген есептер","арифметикалық, алгебралық, геометриялық, тригонометриялық, комбинаторлық, т.б. есептер","ауызша және жазбаша есептер","графиктік есептер"],correct:[2]},
+{q:"Танып-білу деңгейімен анықталатын оқыту әдістері:",opts:["алгоритмдік әдістер","эмпирикалық әдістер","логарифмдік әдістер","интегралдық әдістер","интерактивтік әдістер","логикалық әдістер","танып-білудің арнайы әдістері"],correct:[2,6,7]},
+{q:"Салыстыру-",opts:["зерттелетін объектілердің ұқсастықтары мен айырмашылықтарын ойша тағайындау әдісі","объектілердің кейбір белгілерінің ұқсастығына сүйеніп, олардың басқа белгілерінің де ұқсас болатындығы туралы қорытынды шығару әдісі","объектінің қасиеттерін зерттеу модельдің қасиеттерін зерттеумен алмастырылатын әдіс","объектілер класының бөліктері туралы білімдер негізінде жалпы қорытынды жасалатын ой қорыту әдісі","жалпы қағидалары нақты жағдайларда қолданылатын ой қорыту әдісі","объектілерді жүйелі түрде топтастыру әдісі","нақты деректерді талдау әдісі"],correct:[2]},
+{q:"Аналогия-",opts:["объектілердің кейбір белгілерінің ұқсастығына сүйеніп, олардың басқа белгілерінің де ұқсас болатындығы туралы қорытынды шығаратын таным әдісі","зерттелетін объектілердің ұқсастықтары мен айырмашылықтарын ойша тағайындау әдісі","объектінің қасиеттерін зерттеу модельдің қасиеттерін зерттеумен алмастырылатын әдіс","объектілер класының бөліктері туралы білімдер негізінде жалпы қорытынды жасалатын ой қорыту әдісі","жалпы қағидалары нақты жағдайларда қолданылатын ой қорыту әдісі","белгілерді салыстыра отырып жинақтау","математикалық модельдерді зерттеу"],correct:[1]},
+{q:"Модельдеу-",opts:["объектінің қасиеттерін зерттеу модельдің қасиеттерін зерттеумен алмастырылатын әдіс","объектілердің кейбір белгілерінің ұқсастығына сүйеніп, олардың басқа белгілерінің де ұқсас болатындығы туралы қорытынды шығару әдісі","зерттелетін объектілердің ұқсастықтары мен айырмашылықтарын ойша тағайындау әдісі","объектілер класының бөліктері туралы білімдер негізінде жалпы қорытынды жасалатын ой қорыту әдісі","жалпы қағидалары нақты жағдайларда қолданылатын ой қорыту әдісі","абстрактілі ұғымдарды нақтылау","графиктік бейнелеу әдісі"],correct:[1]},
+{q:"Индукция-",opts:["объектілер класының бөліктері туралы білімдер neгізінде жалпы қорытынды жасалатын ой қорыту әдісі","объектілердің кейбір белгілерінің ұқсастығына сүйеніп, олардың басқа белгілерінің де ұқсас болатындығы туралы қорытынды шығару әдісі","объектінің қасиеттерін зерттеу модельдің қасиеттерін зерттеумен алмастырылатын әдіс","зерттелетін объектілердің ұқсастықтары мен айырмашылықтарын ойша тағайындау әдісі","жалпы қағидалары нақты жағдайларда қолданылатын ой қорыту әдісі","жеке деректен жалпыға өту","сынақ арқылы қорытынды жасау"],correct:[1]},
+{q:"Дедукция-",opts:["жалпы қағидалары нақты жағдайларда қолданылатын ой қорыту әдісі","объектілердің кейбір белгілерінің ұқсастығына сүйеніп, олардың басқа белгілерінің де ұқсас болатындығы туралы қорытынды шығару әдісі","объектінің қасиеттерін зерттеу модельдің қасиеттерін зерттеумен алмастырылатын әдіс","объектілер класының бөліктері туралы білімдер негізінде жалпы қорытынды жасалатын ой қорыту әдісі","зерттелетін объектілердің ұқсастықтары мен айырмашылықтарын ойша тағайындау әдісі","жалпыдан жекеге өту әдісі","логикалық салдарды анықтау"],correct:[1]},
+{q:"Постулат (postulatum, латын тілінде) сөзінің қазақша мағынасы:",opts:["«соңғы»","«талап»","«бастапқы»","«кері»","«ұғым»","«қағида»","«негіз»"],correct:[2]},
+{q:"Аксиома(axioma, грек тілінде) сөзінің қазақша мағынасы:",opts:["«талап»","«бедел»","«сөйлем»","«ұғым»","«ұсыныс»","«ақиқат»","«ереже»"],correct:[2]},
+{q:"Рационал сан дегеніміз:",opts:["шектеусіз периодты ондық бөлшек","шектеусіз периодсыз ондық бөлшек","шектеусіз периодсыз жай бөлшек","шектеусіз периодты лайық бөлшек","шектеулі периодты ондық бөлшек","барлық бүтін сандар мен оң және теріс бөлшек сандар","қысқартылмайтын бөлшек түрінде жазып көрсетуге болатын сан"],correct:[2,6,7]},
+{q:"Векторлық шамаларды көрсетіңіз:",opts:["температура","жылдамдық","масса","ұзындық","көлем","күш","үдеу"],correct:[2,6,7]},
+{q:"Өзіндік жұмыстар ... бойынша жіктеледі:",opts:["дидактикалық мақсаттары, даралау дәрежесі, білім мазмұны, оқушылардың ізденімпаздық дәрежесі","оқытудың мазмұны мен формалары","оқытудың құралдары мен әдістері","оқытудың түрлері мен мазмұны","математикалық мақсаттары, қиындық дәрежесі, оқыту әдістері, оқушылардың білім дәрежесі","оқушылардың жас ерекшелігі","бақылау формалары"],correct:[1]},
+{q:"Эксперимент -:",opts:["логикалық әдіс","эмпирикалық әдіс","алгоритмдік әдіс","теориялық әдіс","аксиоматикалық әдіс","сараптамалық әдіс","сынау әдісі"],correct:[2]},
+{q:"Салыстыру -:",opts:["логикалық әдіс","алгоритмдік әдіс","эмпирикалық әдіс","программалық әдіс","аксиоматикалық әдіс","сараптамалық әдіс","талдау әдісі"],correct:[1]},
+{q:"Салу есебін шешудің кезеңдері:",opts:["Салу","Шығару","Шешу","Түрлендіру","Талдау","Дәлелдеу және зерттеу","Белгілеу"],correct:[1,5,6]},
+{q:"Вербальды ұғымдар:",opts:["айқын және айқындалмаған ұғымдар","тура және жанама ұғымдар","ақиқат және жалған ұғымдар","вертикаль және горизонталь ұғымдар","параллель және перпендикуляр ұғымдар","абстрактілі ұғымдар","нақты ұғымдар"],correct:[1]},
+{q:"Танымның логикалық әдістері:",opts:["анализ әдісі","синтез әдісі","индукция әдісі","түсіндіру әдісі","корнекілік әдісі","практикалық әдіс","лекция әдісі"],correct:[1,2,3]},
+{q:"Бақылау-танымның:",opts:["эмпирикалық әдісі","сұрақ-жауап әдісі","индукциялық әдісі","алгоритмдік әдісі","логарифмдік әдісі","теориялық әдісі","практикалық әдісі"],correct:[1]},
+{q:"Дедукция (лат.deductio) - ... дегенді білдіреді:",opts:["қорытындылау","бөлшектеу","Талдау","жобалау","Құрастыру","жинақтау","саралау"],correct:[1]},
+{q:"Математиканың жалпы әдісі:",opts:["аксиоматикалық әдіс","салыстыру әдісі","дедуктивтік әдіс","индуктивтік әдіс","интегралдық әдіс","талдау әдісі","сынау әдісі"],correct:[1]},
+{q:"Векторлық әдіс-математиканың:",opts:["дербес әдісі","дедукциялық әдісі","индукциялық әдісі","алгоритмдік әдісі","жалпы әдісі","аналитикалық әдісі","геометриялық әдісі"],correct:[1]},
+{q:"Координаталық әдіс-математиканың:",opts:["дербес әдісі","дедукциялық әдісі","индукциялық әдісі","алгоритмдік әдісі","жалпы әдісі","алгебралық әдісі","графиктік әдісі"],correct:[1]},
+{q:"Бөліктерді жеке-жеке қарастыру арқылы зерттейтін таным және ойлау формасы -:",opts:["Анализ","Аналогия","Индукция","Бақылау","Синтез","Дедукция","Абстракция"],correct:[1]},
+{q:"Ауызша әдіс төмендегідей оқыту әдістері тобына жатады:",opts:["білім көзі бойынша оқыту әдістері","оқытудың көрнекілік әдістері","оқушылардың танымдық әрекетінің деңгейімен анықталатын оқыту әдістері","оқытудың практикалық әдістері","танып-білудің арнайы әдістері","сөздік әдістер","белсенді әдістер"],correct:[1]},
+{q:"Ұғым - :",opts:["өте күрделі логикалық және гнесеологиялық категория","өте қарапайым логикалық категория","өте қарапайым гнесеологиялық категория","аса қарапайым биологиялық категория","өте қарапайым логикалық және гнесеологиялық категория","нақты бейне","айқын категория"],correct:[1]},
+{q:"Көрнекілік әдіс төмендегідей оқыту әдістері тобына жатады:",opts:["білім көзі бойынша оқыту әдістері","оқытудың көрнекілік әдістері","оқушылардың танымдық әрекетінің деңгейімен анықталатын оқыту әдістері","оқытудың практикалық әдістері","танып-білудің арнайы әдістері","көрсету әдістері","иллюстрациялық әдістер"],correct:[1]},
+{q:"Математиканы оқыту әдістемесін былай деп те атайды:",opts:["«Математика методикасы»","«Математика физиологиясы»","«Математика география&sы»","«Математика диалектикасы»","«Математика гигиенасы»","«Математика дидактикасы»","«Математика педагогикасы»"],correct:[1,6,7]},
+{q:"Математиканы оқыту әдістемесі төмендегідей өзара байланысты сұрақтарға жауап береді:",opts:["«Нені оқыту керек?»","«Қашан оқыту керек?»","«Кімді оқыту керек?»","«Қанша оқыту керек?»","«Қайда оқыту керек?»","«Неге, не үшін оқыту керек?»","«Қалай оқыту керек?»"],correct:[1,6,7]},
+{q:"«Дихотомия» сөзінің мағынасы:",opts:["екіге бөлу","Түсіну","фрагменттік түсіну","Жалпылау","Баяндау","талдау","жинақтау"],correct:[1]},
+{q:"Ұғымның мазмұны кеңейсе, онда оның көлемі ...:",opts:["Тарылады","Кеңейеді","Теңеседі","Беттеседі","Жанасады","Өзгермейді","Жойылады"],correct:[1]},
+{q:"Екі қарапайым пайым негізінде құрылатын күрделі пайым:",opts:["шартты пайым","келісімді пайым","қарапайым пайым","нақты пайым","логикалық пайым","жалпы пайым","жеке пайым"],correct:[1]},
+{q:"Жалпы алғанда, ұғымдар ... ұғымдар болып бөлінеді:",opts:["салыстырмалы және салыстырылмайтын","шартты және шартсыз","жай және құрама","қарапайым және күрделі","шекті және шексіз","тура және жанама","нақты және дерексіз"],correct:[1]},
+{q:"Салыстырмалы ұғымдар ... ұғымдар болып бөлінеді:",opts:["үйлесімді және үйлесімсіз","қайшылықты және қарама-қарсы","қарапайым және күрделі","бағыныңқы және айқасатын","қайшылықсыз және қамту қатынасындағы","тепе-тең және айқасатын","жалпы және жеке"],correct:[1]},
+{q:"Үйлесімді ұғымдардың түрлері:",opts:["тепе-тең ұғымдар","қайшылықты ұғымдар","қарама-қарсы ұғымдар","бағыныңқы ұғымдар","қайшылықсыз ұғымдар","қамту қатынасындағы ұғымдар","айқасатын ұғымдар"],correct:[1,6,7]},
+{q:"Үйлесімсіз ұғымдардың түрлері:",opts:["қарама-қарсы ұғымдар","айқаспайтын ұғымдар","тепе-тең ұғымдар","қамту қатынасындағы ұғымдар","айқасатын ұғымдар","бағыныңқы ұғымдар","қайшылықты ұғымдар"],correct:[1,6,7]}
+];
+
+const EXTRA_OPTION_TEXT = ["Қосымша нұсқа 1","Қосымша нұсқа 2","Қосымша нұсқа 3"];
+QUESTIONS.forEach((q)=>{
+  while(q.opts.length < 7){
+    q.opts.push(EXTRA_OPTION_TEXT[q.opts.length - 4] ?? `Қосымша нұсқа ${q.opts.length - 3}`);
+  }
+  q.correct = q.correct.map(index => index - 1);
+});
+
+// ---- Custom auth (RPC-based, no Supabase Auth/GoTrue involved at all) ----
+const SESSION_KEY = 'pedagogy_session_user';
+let SELECTED_QUESTIONS = [];
+let authMode = 'login';
+let authMessage = '';
+let authBusy = false;
+let currentUser = null;      // { id, username, name }
+let currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
+let bootReady = false;
+let dbQuestionsLoaded = false;
+
+async function loadQuestionsFromDB(){
+  try{
+    const { data, error } = await sb.from('pedagogy_questions').select('question, options, correct').order('id');
+    if(error) throw error;
+    if(data && data.length){
+      QUESTIONS.length = 0;
+      data.forEach(row => QUESTIONS.push({ q: row.question, opts: row.options, correct: row.correct }));
+    }
+    dbQuestionsLoaded = true;
+  } catch(e){
+    console.error('Не удалось загрузить вопросы из Supabase, используем встроенный набор:', e);
+  }
+}
+
+async function refreshProgress(){
+  if(!currentUser) return;
+  try{
+    const { data, error } = await sb.rpc('get_user_progress', { p_user_id: currentUser.id });
+    if(error) throw error;
+    currentProgress = {
+      testsCompleted: data.testsCompleted || 0,
+      bestScore: Number(data.bestScore) || 0,
+      lastScore: Number(data.lastScore) || 0,
+      history: (data.history || []).map(a => ({
+        date: new Date(a.created_at).toLocaleString('ru-RU'),
+        score: a.score, maxScore: a.max_score,
+        questions: a.total_questions, answered: a.answered
+      }))
+    };
+  } catch(e){
+    console.error('Не удалось загрузить прогресс:', e);
+    currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
+  }
+}
+
+function saveSession(user){
+  try{ localStorage.setItem(SESSION_KEY, JSON.stringify(user)); } catch {}
+}
+function loadSession(){
+  try{ const raw = localStorage.getItem(SESSION_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+}
+function clearSession(){
+  try{ localStorage.removeItem(SESSION_KEY); } catch {}
+}
+
+async function initSession(){
+  await loadQuestionsFromDB();
+  const saved = loadSession();
+  if(saved?.id){
+    currentUser = saved;
+    await refreshProgress();
+  }
+  bootReady = true;
+  render();
+}
+
+function shuffle(arr){
+  const copy = [...arr];
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function createQuestionVariant(question){
+  const order = shuffle(question.opts.map((_, idx)=>idx));
+  return {
+    ...question,
+    opts: order.map(idx => question.opts[idx]),
+    correct: question.correct.map(idx => order.indexOf(idx))
+  };
+}
+
+let state = {screen:'start', current:0, answers:[], finished:false};
+
+function letters(i){ return ['A','B','C','D','E','F','G'][i]; }
+
+function setAnswer(qIdx, optIdx){
+  let sel = state.answers[qIdx] ? [...state.answers[qIdx]] : [];
+  if(sel.includes(optIdx)) sel = sel.filter(x=>x!==optIdx);
+  else sel.push(optIdx);
+  state.answers[qIdx] = sel;
+  render();
+}
+
+function isCorrectAnswer(qIdx){
+  const q = SELECTED_QUESTIONS[qIdx];
+  const sel = state.answers[qIdx] || [];
+  if(sel.length !== q.correct.length) return false;
+  const sortedSel = [...sel].sort((a,b)=>a-b);
+  const sortedCorrect = [...q.correct].sort((a,b)=>a-b);
+  return sortedSel.every((v,i)=>v===sortedCorrect[i]);
+}
+
+function getQuestionScore(qIdx){
+  const q = SELECTED_QUESTIONS[qIdx];
+  const sel = state.answers[qIdx] || [];
+  const correctSet = new Set(q.correct);
+  const correctSelected = sel.filter(i => correctSet.has(i)).length;
+  const wrongSelected = sel.filter(i => !correctSet.has(i)).length;
+  const totalCorrect = q.correct.length;
+  if(totalCorrect === 0) return 0;
+
+  // Все правильные и ни одного лишнего — максимум
+  if(correctSelected === totalCorrect && wrongSelected === 0) return 2;
+
+  // Слишком много неправильных вариантов — 0 баллов
+  if(wrongSelected >= 2 || wrongSelected > correctSelected) return 0;
+
+  // Часть правильных без ошибок ИЛИ все правильные с одной лишней ошибкой — 1 балл
+  if((correctSelected > 0 && correctSelected < totalCorrect && wrongSelected === 0) ||
+     (correctSelected === totalCorrect && wrongSelected === 1)){
+    return 1;
+  }
+
+  return 0;
+}
+
+function computeScore(){
+  let score = 0;
+  SELECTED_QUESTIONS.forEach((q,i)=>{ score += getQuestionScore(i); });
+  return score;
+}
+
+function goStart(){
+  SELECTED_QUESTIONS = [];
+  state = {screen:'start', current:0, answers:[], finished:false};
+  render();
+}
+function goTest(){
+  SELECTED_QUESTIONS = shuffle(QUESTIONS).slice(0, 20).map(createQuestionVariant);
+  state = {screen:'test', current:0, answers:Array(SELECTED_QUESTIONS.length).fill(null), finished:false};
+  render();
+}
+function goTo(i){ state.current=i; render(); }
+function goNext(){ if(state.current < SELECTED_QUESTIONS.length-1){ state.current++; render(); } }
+function goPrev(){ if(state.current > 0){ state.current--; render(); } }
+async function saveTestResult(){
+  if(!currentUser) return;
+  const score = Number(computeScore().toFixed(1));
+  const maxScore = SELECTED_QUESTIONS.length * 2;
+  const answered = state.answers.filter(a=>a && a.length>0).length;
+  const results = SELECTED_QUESTIONS.map((q,i)=>({
+    question: q.q, selected: state.answers[i] || [], correct: q.correct, score: getQuestionScore(i)
+  }));
+  try{
+    const { error } = await sb.rpc('save_attempt', {
+      p_user_id: currentUser.id,
+      p_score: score,
+      p_max_score: maxScore,
+      p_total_questions: SELECTED_QUESTIONS.length,
+      p_answered: answered,
+      p_results: results
+    });
+    if(error) throw error;
+  } catch(e){
+    console.error('Не удалось сохранить попытку в Supabase:', e);
+  }
+  await refreshProgress();
+}
+async function finishTest(){
+  state.finished=true; state.screen='result'; render();
+  await saveTestResult();
+  render();
+}
+
+function switchAuthMode(mode){ authMode = mode; authMessage=''; render(); }
+
+// Тек логин мен құпия сөз. Supabase Auth (GoTrue) мүлдем қолданылмайды —
+// логин де, кіру де тікелей серверлік RPC функциялары арқылы жүреді
+// (register_username / login_username), сондықтан GoTrue-дың "signups
+// disabled" немесе "logins disabled" деген жоба баптаулары бұған
+// мүлдем әсер етпейді. Сессия жай ғана localStorage-те сақталады.
+function normalizeLogin(raw){
+  return (raw||'').trim().toLowerCase();
+}
+function isValidLogin(login){
+  return /^[a-z0-9_.-]{3,32}$/.test(login);
+}
+
+async function submitAuth(e){
+  e.preventDefault();
+  if(authBusy) return;
+  const login = normalizeLogin(document.getElementById('authUsername').value);
+  const password = document.getElementById('authPassword').value;
+  const name = document.getElementById('authName')?.value.trim() || '';
+  if(!login || !password){ authMessage='Логин мен құпия сөзді енгізіңіз'; render(); return; }
+  if(!isValidLogin(login)){ authMessage='Логин тек латын әріптері, сандар, "_", "-", "." таңбаларынан тұруы керек (3-32 таңба)'; render(); return; }
+  if(authMode==='register' && password.length < 6){ authMessage='Құпия сөз кемінде 6 таңбадан тұруы керек'; render(); return; }
+
+  authBusy = true; authMessage=''; render();
+  try{
+    if(authMode==='login'){
+      const { data, error } = await sb.rpc('login_username', { p_username: login, p_password: password });
+      if(error) throw error;
+      currentUser = { id: data.id, username: data.username, name: data.name || data.username };
+      saveSession(currentUser);
+      await refreshProgress();
+    } else {
+      const { error: regError } = await sb.rpc('register_username', { p_username: login, p_password: password, p_name: name || login });
+      if(regError) throw regError;
+      const { data, error } = await sb.rpc('login_username', { p_username: login, p_password: password });
+      if(error) throw error;
+      currentUser = { id: data.id, username: data.username, name: data.name || data.username };
+      saveSession(currentUser);
+      await refreshProgress();
+    }
+  } catch(err){
+    const rawMsg = err?.message || '';
+    if(rawMsg.includes('бұрыннан бар')) authMessage = 'Бұл логин бойынша аккаунт бұрыннан бар';
+    else if(rawMsg.includes('қате')) authMessage = 'Логин немесе құпия сөз қате';
+    else authMessage = rawMsg || 'Қате шықты, қайталап көріңіз';
+  }
+  authBusy = false;
+  render();
+}
+function logout(){
+  currentUser = null;
+  currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
+  clearSession();
+  authMessage=''; render();
+}
+
+function renderAuth(){
+  return `
+  <div class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-badge">Онлайн-экзамен</div>
+      <div class="auth-title">Педагогика тесті</div>
+      <div class="auth-sub">Создайте аккаунт или войдите, чтобы сохранять прогресс, видеть историю попыток и возвращаться к тесту в любой момент.</div>
+      <div class="auth-tabs">
+        <div class="auth-tab ${authMode==='login'?'active':''}" onclick="switchAuthMode('login')">Вход</div>
+        <div class="auth-tab ${authMode==='register'?'active':''}" onclick="switchAuthMode('register')">Регистрация</div>
+      </div>
+      <form onsubmit="submitAuth(event)">
+        ${authMode==='register'?`<div class="field"><label>Аты-жөні</label><input id="authName" type="text" placeholder="Атыңыз"></div>`:''}
+        <div class="field"><label>Логин</label><input id="authUsername" type="text" autocomplete="username" placeholder="Логиныңызды енгізіңіз"></div>
+        <div class="field"><label>Құпия сөз</label><input id="authPassword" type="password" autocomplete="${authMode==='login'?'current-password':'new-password'}" placeholder="Құпия сөзді енгізіңіз"></div>
+        <button class="btn btn-primary btn-full" type="submit" ${authBusy?'disabled':''}>${authBusy?'Жүктелуде…':(authMode==='login'?'Кіру':'Тіркелу')}</button>
+      </form>
+      ${authMessage?`<div class="auth-message ${authMessage.includes('сәтті')||authMessage.includes('растау')?'success':''}">${authMessage}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderStart(){
+  const answeredCount = state.answers.filter(a=>a && a.length>0).length;
+  const progress = currentProgress;
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">EMTIHAN · PEDAGOGIKA NEGIZDERI</div></div>
+    <div class="user-pill"><strong>${currentUser?.name || currentUser?.username || 'Пользователь'}</strong><span>•</span><button class="btn btn-sm btn-secondary" onclick="logout()">Выйти</button></div>
+  </div>
+  <div class="body-wrap">
+    <div class="progress-card">
+      <div class="progress-title">Прогресс</div>
+      <div class="progress-sub">Ваши попытки сохраняются в аккаунте и доступны в любой момент.</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Сдано тестов</div><div class="stat-value">${progress.testsCompleted || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Лучший балл</div><div class="stat-value">${progress.bestScore || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Последний балл</div><div class="stat-value">${progress.lastScore || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Последняя попытка</div><div class="stat-value">${progress.history?.[0]?.score ?? 0}</div></div>
+      </div>
+      <div class="history-list">
+        ${(progress.history || []).length ? progress.history.map(item=>`<div class="history-item"><div class="left">${item.date} • ${item.score}/${item.maxScore}</div><div class="right">${item.answered}/${item.questions} вопросов</div></div>`).join('') : '<div class="history-item"><div class="left">Пока нет попыток</div><div class="right">Начните тест и прогресс появится здесь</div></div>'}
+      </div>
+    </div>
+    <div class="start-card">
+      <div class="auth-badge">Подготовка к экзамену</div>
+      <div class="start-title">Педагогика негіздері бойынша тест</div>
+      <div class="start-sub">Тест 20 сұрақтан тұрады. Кейбір сұрақтарда бірнеше дұрыс жауап болуы мүмкін (1-ден 3-ке дейін). Толық дұрыс жауап 2 балл береді, ал қате жауаптар саны артқан сайын балл азаяды.</div>
+      <div class="start-stats">
+        <div class="start-stat"><div class="start-stat-val">20</div><div class="start-stat-lbl">Сұрақ</div></div>
+        <div class="start-stat"><div class="start-stat-val">1-3</div><div class="start-stat-lbl">Дұрыс жауап саны</div></div>
+        <div class="start-stat"><div class="start-stat-val">∞</div><div class="start-stat-lbl">Уақыт шегі жоқ</div></div>
+      </div>
+      <div class="hint-box"><b>Ескертпе:</b> Әр сұрақта қаласаңыз бір, қаласаңыз бірнеше жауап нұсқасын таңдай аласыз. Толық дұрыс жауап (артық қатесіз) — 2 балл, ішінара дұрыс жауап — 1 балл, көп қате таңдау — 0 балл.</div>
+      <button class="btn btn-lg" onclick="goTest()">Тестті бастау →</button>
+    </div>
+  </div>`;
+}
+
+function renderTest(){
+  const qIdx = state.current;
+  const q = SELECTED_QUESTIONS[qIdx];
+  const sel = state.answers[qIdx] || [];
+  const answeredCount = state.answers.filter(a=>a && a.length>0).length;
+
+  let dots = '';
+  SELECTED_QUESTIONS.forEach((_,i)=>{
+    const cls = i===qIdx ? 'current' : (state.answers[i] && state.answers[i].length>0 ? 'answered' : '');
+    dots += `<div class="q-dot ${cls}" onclick="goTo(${i})">${i+1}</div>`;
+  });
+
+  let opts = '';
+  q.opts.forEach((o,i)=>{
+    const isSel = sel.includes(i);
+    opts += `
+    <div class="option ${isSel?'selected':''}" onclick="setAnswer(${qIdx},${i})">
+      <div class="option-letter">${letters(i)}</div>
+      <div class="option-box">${isSel?'✓':''}</div>
+      <div class="option-text">${o}</div>
+    </div>`;
+  });
+
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">Жауап берілді: ${answeredCount}/${SELECTED_QUESTIONS.length}</div></div>
+  </div>
+  <div class="body-wrap">
+    <div class="q-nav">${dots}</div>
+    <div class="question-card">
+      <div class="q-header">
+        <div class="q-num">Сұрақ ${qIdx+1} / ${SELECTED_QUESTIONS.length}</div>
+        <div class="q-badge single">№ ${qIdx+1}</div>
+      </div>
+      <div class="q-instruction">Дұрыс жауап нұсқасын/нұсқаларын таңдаңыз.</div>
+      <div class="q-body">${q.q}</div>
+      <div class="options">${opts}</div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="goPrev()" ${qIdx===0?'disabled':''}>← Алдыңғы</button>
+      ${qIdx === SELECTED_QUESTIONS.length-1
+        ? `<button class="btn" onclick="finishTest()">Тестті аяқтау</button>`
+        : `<button class="btn" onclick="goNext()">Келесі →</button>`}
+    </div>
+  </div>`;
+}
+
+function renderResult(){
+  const score = computeScore();
+  const maxScore = SELECTED_QUESTIONS.length * 2;
+  const pct = Math.round(score/maxScore*100);
+  let review = '';
+  SELECTED_QUESTIONS.forEach((q,i)=>{
+    const sel = state.answers[i] || [];
+    const qScore = getQuestionScore(i);
+    let opts = '';
+    q.opts.forEach((o,idx)=>{
+      const wasSel = sel.includes(idx);
+      const isCorrectOpt = q.correct.includes(idx);
+      let cls = '';
+      if(isCorrectOpt && wasSel) cls = 'correct';
+      else if(isCorrectOpt && !wasSel) cls = 'missed';
+      else if(!isCorrectOpt && wasSel) cls = 'incorrect';
+      opts += `
+      <div class="option ${cls}">
+        <div class="option-letter">${letters(idx)}</div>
+        <div class="option-box">${wasSel?'✓':''}</div>
+        <div class="option-text">${o}</div>
+      </div>`;
+    });
+    review += `
+    <div class="review-card ${qScore===2?'right':qScore===1?'partial':'wrong'}">
+      <div class="review-head">
+        <div class="review-num">Сұрақ ${i+1}</div>
+        <span class="badge ${qScore===2?'badge-green':qScore===1?'badge-amber':'badge-red'}">${qScore} / 2 балл</span>
+      </div>
+      <div class="q-body" style="margin-bottom:14px;font-size:14.5px">${q.q}</div>
+      <div class="options">${opts}</div>
+    </div>`;
+  });
+
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">НӘТИЖЕ</div></div>
+  </div>
+  <div class="body-wrap">
+    <div class="result-header">
+      <div class="result-score">${pct}%</div>
+      <div class="result-label">${score.toFixed(1)} / ${maxScore} балл</div>
+      <div class="result-sub">Толық дұрыс жауап 2 балл береді. Қате таңдалған жауаптар саны артқан сайын балл азаяды.</div>
+      <div class="result-actions">
+        <button class="btn btn-secondary" onclick="goStart()">Қайта бастау</button>
+      </div>
+    </div>
+    <div class="section-title">Толық шолу</div>
+    ${review}
+  </div>`;
+}
+
+function renderLoading(){
+  return `<div class="auth-screen"><div class="auth-card" style="text-align:center">
+    <div class="auth-title" style="font-size:20px">Жүктелуде…</div>
+    <div class="auth-sub">Supabase-пен байланыс орнатылуда</div>
+  </div></div>`;
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(!bootReady){ app.innerHTML = renderLoading(); return; }
+  if(!currentUser){ app.innerHTML = renderAuth(); }
+  else if(state.screen==='start') app.innerHTML = renderStart();
+  else if(state.screen==='test') app.innerHTML = renderTest();
+  else app.innerHTML = renderResult();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+render();
+initSession();
+</script>
+</body>
+</html>
