@@ -163,6 +163,27 @@ body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);min-h
 .review-card.wrong{border-left:4px solid var(--red)}
 .review-card.partial{border-left:4px solid var(--amber)}
 
+.tabs-row{display:flex;gap:8px;margin-bottom:20px;width:100%}
+.tab-btn{flex:1;text-align:center;padding:12px 10px;border-radius:14px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-weight:700;cursor:pointer;transition:all .15s;font-size:13.5px}
+.tab-btn:hover{border-color:var(--border3);color:var(--text)}
+.tab-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 10px 24px rgba(79,124,255,.25)}
+
+.deck-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;width:100%}
+.deck-card{background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:18px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .15s}
+.deck-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.deck-card-num{font-size:26px;font-weight:800;color:var(--accent2);letter-spacing:-.5px}
+.deck-card-range{font-size:11.5px;color:var(--text3);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.deck-card-count{font-size:11px;color:var(--text2);margin-top:10px;background:var(--accent-bg);display:inline-block;padding:3px 10px;border-radius:20px}
+
+.flash-wrap{width:100%;max-width:640px;margin:0 auto}
+.flash-progress{text-align:center;font-size:12px;color:var(--text3);margin-bottom:14px;font-family:'JetBrains Mono',monospace;letter-spacing:.04em}
+.flashcard{background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:var(--radius-xl);padding:40px 30px;min-height:200px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;font-size:16.5px;font-weight:500;line-height:1.6;box-shadow:0 18px 60px rgba(0,0,0,.24);transition:border-color .15s}
+.flashcard:hover{border-color:var(--accent)}
+.flash-answer{color:var(--green);font-size:14px;margin-top:20px;font-weight:600;line-height:1.7;border-top:1px dashed var(--border2);padding-top:16px}
+.flash-hint{font-size:11.5px;color:var(--text3);text-align:center;margin-top:10px}
+.flash-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+.flash-actions{display:flex;gap:12px;margin-top:14px;width:100%}
+
 @media(max-width:900px){
   .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -371,7 +392,7 @@ let authMode = 'login';
 let authMessage = '';
 let authBusy = false;
 let currentUser = null;      // { id, username, name }
-let currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
+let currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,avgScore:0,history:[]};
 let bootReady = false;
 let dbQuestionsLoaded = false;
 
@@ -398,15 +419,18 @@ async function refreshProgress(){
       testsCompleted: data.testsCompleted || 0,
       bestScore: Number(data.bestScore) || 0,
       lastScore: Number(data.lastScore) || 0,
+      avgScore: Number(data.avgScore) || 0,
       history: (data.history || []).map(a => ({
+        id: a.id,
         date: new Date(a.created_at).toLocaleString('ru-RU'),
         score: a.score, maxScore: a.max_score,
-        questions: a.total_questions, answered: a.answered
+        questions: a.total_questions, answered: a.answered,
+        results: a.results || null
       }))
     };
   } catch(e){
     console.error('Не удалось загрузить прогресс:', e);
-    currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
+    currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,avgScore:0,history:[]};
   }
 }
 
@@ -479,16 +503,15 @@ function getQuestionScore(qIdx){
   const totalCorrect = q.correct.length;
   if(totalCorrect === 0) return 0;
 
-  // Все правильные и ни одного лишнего — максимум
-  if(correctSelected === totalCorrect && wrongSelected === 0) return 2;
+  // Барлық дұрыс жауап табылды — қате санына қарай 2 баллдан кемиді (0-ге дейін)
+  if(correctSelected === totalCorrect){
+    return Math.max(0, 2 - wrongSelected);
+  }
 
-  // Слишком много неправильных вариантов — 0 баллов
-  if(wrongSelected >= 2 || wrongSelected > correctSelected) return 0;
-
-  // Часть правильных без ошибок ИЛИ все правильные с одной лишней ошибкой — 1 балл
-  if((correctSelected > 0 && correctSelected < totalCorrect && wrongSelected === 0) ||
-     (correctSelected === totalCorrect && wrongSelected === 1)){
-    return 1;
+  // Ішінара дұрыс: тек қажетті минимумды (жартысын, жоғары қарай дөңгелетіп) тапқанда ғана балл беріледі
+  const required = Math.ceil(totalCorrect / 2);
+  if(correctSelected >= required && correctSelected > 0){
+    return wrongSelected <= correctSelected ? 1 : 0;
   }
 
   return 0;
@@ -510,6 +533,82 @@ function goTest(){
   state = {screen:'test', current:0, answers:Array(SELECTED_QUESTIONS.length).fill(null), finished:false};
   render();
 }
+
+// ---- Карточкалар (Quizlet-стиль қайталау) бойынша топтар: әр топта 20 сұрақ ----
+function getDecks(){
+  const decks = [];
+  for(let i=0; i<QUESTIONS.length; i+=20){
+    decks.push({
+      index: decks.length,
+      start: i,
+      end: Math.min(i+20, QUESTIONS.length) - 1,
+      questions: QUESTIONS.slice(i, i+20)
+    });
+  }
+  return decks;
+}
+
+function goDecks(){
+  SELECTED_QUESTIONS = [];
+  state = {screen:'decks', current:0, answers:[], finished:false};
+  render();
+}
+
+function goFlashcards(deckIdx){
+  state = {screen:'flashcards', deckIndex:deckIdx, cardIndex:0, cardFlipped:false, answers:[], finished:false};
+  render();
+}
+
+function flipCard(){ state.cardFlipped = !state.cardFlipped; render(); }
+function nextCard(){
+  const deck = getDecks()[state.deckIndex];
+  if(state.cardIndex < deck.questions.length - 1){
+    state.cardIndex++; state.cardFlipped=false; render();
+  }
+}
+function prevCard(){
+  if(state.cardIndex > 0){ state.cardIndex--; state.cardFlipped=false; render(); }
+}
+
+function startDeckTest(deckIdx){
+  const deck = getDecks()[deckIdx];
+  SELECTED_QUESTIONS = shuffle(deck.questions).map(createQuestionVariant);
+  state = {screen:'test', current:0, answers:Array(SELECTED_QUESTIONS.length).fill(null), finished:false, deckIndex:deckIdx};
+  render();
+}
+
+// ---- Тесттер тарихы және қателермен жұмыс ----
+function goHistory(){
+  SELECTED_QUESTIONS = [];
+  state = {screen:'history', current:0, answers:[], finished:false};
+  render();
+}
+
+function viewAttempt(id){
+  state = {screen:'history-detail', attemptId:id};
+  render();
+}
+
+function findQuestionDeckIndex(qText){
+  const idx = QUESTIONS.findIndex(q => q.q === qText);
+  return idx === -1 ? null : Math.floor(idx / 20);
+}
+
+function computeMistakeAnalysis(history){
+  const deckStats = {};
+  (history || []).forEach(attempt => {
+    (attempt.results || []).forEach(r => {
+      const deckIdx = findQuestionDeckIndex(r.question);
+      if(deckIdx === null) return;
+      if(!deckStats[deckIdx]) deckStats[deckIdx] = {wrong:0, total:0};
+      deckStats[deckIdx].total++;
+      if((r.score ?? 0) < 2) deckStats[deckIdx].wrong++;
+    });
+  });
+  return Object.entries(deckStats)
+    .map(([idx, s]) => ({deckIdx:Number(idx), wrong:s.wrong, total:s.total, rate: s.total ? s.wrong/s.total : 0}))
+    .sort((a,b) => b.rate - a.rate || b.wrong - a.wrong);
+}
 function goTo(i){ state.current=i; render(); }
 function goNext(){ if(state.current < SELECTED_QUESTIONS.length-1){ state.current++; render(); } }
 function goPrev(){ if(state.current > 0){ state.current--; render(); } }
@@ -519,7 +618,7 @@ async function saveTestResult(){
   const maxScore = SELECTED_QUESTIONS.length * 2;
   const answered = state.answers.filter(a=>a && a.length>0).length;
   const results = SELECTED_QUESTIONS.map((q,i)=>({
-    question: q.q, selected: state.answers[i] || [], correct: q.correct, score: getQuestionScore(i)
+    question: q.q, options: q.opts, selected: state.answers[i] || [], correct: q.correct, score: getQuestionScore(i)
   }));
   try{
     const { error } = await sb.rpc('save_attempt', {
@@ -594,7 +693,7 @@ async function submitAuth(e){
 }
 function logout(){
   currentUser = null;
-  currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,history:[]};
+  currentProgress = {testsCompleted:0,bestScore:0,lastScore:0,avgScore:0,history:[]};
   clearSession();
   authMessage=''; render();
 }
@@ -621,28 +720,24 @@ function renderAuth(){
   </div>`;
 }
 
+function renderTabs(active){
+  return `
+  <div class="tabs-row">
+    <div class="tab-btn ${active==='start'?'active':''}" onclick="goStart()">📝 Тест (кездейсоқ 20)</div>
+    <div class="tab-btn ${active==='decks'?'active':''}" onclick="goDecks()">🗂️ Карточкалар (қайталау)</div>
+    <div class="tab-btn ${active==='history'?'active':''}" onclick="goHistory()">📊 Тарих және анализ</div>
+  </div>`;
+}
+
 function renderStart(){
   const answeredCount = state.answers.filter(a=>a && a.length>0).length;
-  const progress = currentProgress;
   return `
   <div class="header">
     <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">EMTIHAN · PEDAGOGIKA NEGIZDERI</div></div>
     <div class="user-pill"><strong>${currentUser?.name || currentUser?.username || 'Пользователь'}</strong><span>•</span><button class="btn btn-sm btn-secondary" onclick="logout()">Выйти</button></div>
   </div>
   <div class="body-wrap">
-    <div class="progress-card">
-      <div class="progress-title">Прогресс</div>
-      <div class="progress-sub">Ваши попытки сохраняются в аккаунте и доступны в любой момент.</div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Сдано тестов</div><div class="stat-value">${progress.testsCompleted || 0}</div></div>
-        <div class="stat-card"><div class="stat-label">Лучший балл</div><div class="stat-value">${progress.bestScore || 0}</div></div>
-        <div class="stat-card"><div class="stat-label">Последний балл</div><div class="stat-value">${progress.lastScore || 0}</div></div>
-        <div class="stat-card"><div class="stat-label">Последняя попытка</div><div class="stat-value">${progress.history?.[0]?.score ?? 0}</div></div>
-      </div>
-      <div class="history-list">
-        ${(progress.history || []).length ? progress.history.map(item=>`<div class="history-item"><div class="left">${item.date} • ${item.score}/${item.maxScore}</div><div class="right">${item.answered}/${item.questions} вопросов</div></div>`).join('') : '<div class="history-item"><div class="left">Пока нет попыток</div><div class="right">Начните тест и прогресс появится здесь</div></div>'}
-      </div>
-    </div>
+    ${renderTabs('start')}
     <div class="start-card">
       <div class="auth-badge">Подготовка к экзамену</div>
       <div class="start-title">Педагогика негіздері бойынша тест</div>
@@ -655,6 +750,203 @@ function renderStart(){
       <div class="hint-box"><b>Ескертпе:</b> Әр сұрақта қаласаңыз бір, қаласаңыз бірнеше жауап нұсқасын таңдай аласыз. Толық дұрыс жауап (артық қатесіз) — 2 балл, ішінара дұрыс жауап — 1 балл, көп қате таңдау — 0 балл.</div>
       <button class="btn btn-lg" onclick="goTest()">Тестті бастау →</button>
     </div>
+  </div>`;
+}
+
+function renderDecks(){
+  const decks = getDecks();
+  const cards = decks.map(d => `
+    <div class="deck-card" onclick="goFlashcards(${d.index})">
+      <div class="deck-card-num">${d.index + 1}-топ</div>
+      <div class="deck-card-range">Сұрақ ${d.start + 1}–${d.end + 1}</div>
+      <div class="deck-card-count">${d.questions.length} сұрақ</div>
+    </div>`).join('');
+
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">Карточкалар · Қайталау</div></div>
+    <div class="user-pill"><strong>${currentUser?.name || currentUser?.username || 'Пользователь'}</strong><span>•</span><button class="btn btn-sm btn-secondary" onclick="logout()">Выйти</button></div>
+  </div>
+  <div class="body-wrap">
+    ${renderTabs('decks')}
+    <div class="start-card" style="margin-bottom:20px">
+      <div class="start-title" style="font-size:22px">Карточкалар бойынша қайталау</div>
+      <div class="start-sub">Сұрақтар әрқайсысы 20-дан топтарға бөлінген (1-топ: 1–20-сұрақтар, 2-топ: 21–40-сұрақтар және т.б.). Топты таңдап, алдымен жауаптарымен қайталаңыз, содан кейін дәл сол 20 сұрақ бойынша тест тапсыруға болады.</div>
+    </div>
+    <div class="deck-grid">${cards}</div>
+  </div>`;
+}
+
+function renderFlashcards(){
+  const decks = getDecks();
+  const deck = decks[state.deckIndex];
+  const q = deck.questions[state.cardIndex];
+  const correctText = q.correct.map(i => `${letters(i)}. ${q.opts[i]}`).join('<br>');
+
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">${state.deckIndex + 1}-топ · Карточка ${state.cardIndex + 1}/${deck.questions.length}</div></div>
+  </div>
+  <div class="body-wrap">
+    <div class="flash-wrap">
+      <div class="flash-progress">СҰРАҚ ${deck.start + state.cardIndex + 1}</div>
+      <div class="flashcard" onclick="flipCard()">
+        <div>
+          <div>${q.q}</div>
+          ${state.cardFlipped ? `<div class="flash-answer">✅ Дұрыс жауап:<br>${correctText}</div>` : ''}
+        </div>
+      </div>
+      <div class="flash-hint">${state.cardFlipped ? 'Сұрақты қайта көру үшін басыңыз' : 'Жауапты көру үшін карточканы басыңыз'}</div>
+      <div class="flash-nav">
+        <button class="btn btn-secondary" onclick="prevCard()" ${state.cardIndex===0?'disabled':''}>← Алдыңғы</button>
+        ${state.cardIndex === deck.questions.length - 1
+          ? `<button class="btn btn-secondary" disabled>Соңғы карточка</button>`
+          : `<button class="btn btn-secondary" onclick="nextCard()">Келесі →</button>`}
+      </div>
+      <div class="flash-actions">
+        <button class="btn btn-secondary btn-full" onclick="goDecks()">← Топтарға қайту</button>
+        <button class="btn btn-full" onclick="startDeckTest(${state.deckIndex})">Осы 20 сұрақ бойынша тест тапсыру →</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderHistory(){
+  const progress = currentProgress;
+  const history = progress.history || [];
+  const analysis = computeMistakeAnalysis(history);
+  const decks = getDecks();
+
+  const analysisRows = analysis.length ? analysis.slice(0, 10).map(x => {
+    const deck = decks[x.deckIdx];
+    const rangeLabel = deck ? `сұрақ ${deck.start+1}–${deck.end+1}` : '';
+    const pct = Math.round(x.rate * 100);
+    return `
+    <div class="history-item">
+      <div class="left"><b>${x.deckIdx+1}-топ</b> · ${rangeLabel}</div>
+      <div class="right">${x.wrong} қате / ${x.total} жауап · ${pct}%</div>
+    </div>`;
+  }).join('') : '<div class="history-item"><div class="left">Талдау үшін деректер жеткіліксіз</div><div class="right">Алдымен тест тапсырыңыз</div></div>';
+
+  const historyRows = history.length ? history.map(a => {
+    const pct = a.maxScore ? Math.round(a.score / a.maxScore * 100) : 0;
+    return `
+    <div class="history-item" style="cursor:pointer" onclick="viewAttempt(${a.id})">
+      <div class="left">${a.date}</div>
+      <div class="right">${a.score}/${a.maxScore} балл (${pct}%) · ${a.answered}/${a.questions} жауап · Толық қарау →</div>
+    </div>`;
+  }).join('') : '<div class="history-item"><div class="left">Әзірге тесттер жоқ</div><div class="right">Тест тапсырғаннан кейін осында көрінеді</div></div>';
+
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">Тарих және анализ</div></div>
+    <div class="user-pill"><strong>${currentUser?.name || currentUser?.username || 'Пользователь'}</strong><span>•</span><button class="btn btn-sm btn-secondary" onclick="logout()">Выйти</button></div>
+  </div>
+  <div class="body-wrap">
+    ${renderTabs('history')}
+    <div class="progress-card">
+      <div class="progress-title">Жалпы статистика</div>
+      <div class="progress-sub">Барлық тапсырылған тесттер бойынша есептелген.</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Барлық тест</div><div class="stat-value">${progress.testsCompleted || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Орташа балл</div><div class="stat-value">${progress.avgScore || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Ең жоғары балл</div><div class="stat-value">${progress.bestScore || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Соңғы балл</div><div class="stat-value">${progress.lastScore || 0}</div></div>
+      </div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-title">Ең көп қате жіберілген топтар</div>
+      <div class="progress-sub">Қай 20-сұрақтық топта қателер жиірек кездеседі — осы жерден көресіз, сол топты «Карточкалар» бөлімінен қайталауға болады.</div>
+      <div class="history-list">${analysisRows}</div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-title">Бұрынғы тесттер</div>
+      <div class="progress-sub">Әр тестті басып, сол кездегі жауаптарыңызды толық қайта қарауға болады.</div>
+      <div class="history-list">${historyRows}</div>
+    </div>
+  </div>`;
+}
+
+function renderHistoryDetail(){
+  const attempt = (currentProgress.history || []).find(a => a.id === state.attemptId);
+  if(!attempt){ return renderHistory(); }
+  const results = attempt.results || [];
+  const pct = attempt.maxScore ? Math.round(attempt.score / attempt.maxScore * 100) : 0;
+  const hasOptions = results.length && results[0].options;
+
+  let review = '';
+  if(!hasOptions){
+    review = `<div class="hint-box"><b>Ескертпе:</b> бұл ескі жазба — сол кездегі нұсқалардың реті сақталмаған, сондықтан нақты қай нұсқаны таңдағаныңызды көрсете алмаймыз. Төменде тек дұрыс жауап нұсқалары көрсетілген.</div>` +
+      results.map((r,i) => {
+        const original = QUESTIONS.find(q => q.q === r.question);
+        let opts = '';
+        if(original){
+          original.opts.forEach((o, idx) => {
+            const isCorrectOpt = original.correct.includes(idx);
+            opts += `
+            <div class="option ${isCorrectOpt ? 'correct' : ''}">
+              <div class="option-letter">${letters(idx)}</div>
+              <div class="option-box">${isCorrectOpt ? '✓' : ''}</div>
+              <div class="option-text">${o}</div>
+            </div>`;
+          });
+        }
+        return `
+        <div class="review-card ${r.score===2?'right':r.score===1?'partial':'wrong'}">
+          <div class="review-head">
+            <div class="review-num">Сұрақ ${i+1}</div>
+            <span class="badge ${r.score===2?'badge-green':r.score===1?'badge-amber':'badge-red'}">${r.score} / 2 балл</span>
+          </div>
+          <div class="q-body" style="margin-bottom:14px;font-size:14.5px">${r.question}</div>
+          ${opts ? `<div class="options">${opts}</div>` : ''}
+        </div>`;
+      }).join('');
+  } else {
+    review = results.map((r,i) => {
+      const sel = r.selected || [];
+      const correctSet = new Set(r.correct || []);
+      let opts = '';
+      (r.options || []).forEach((o, idx) => {
+        const wasSel = sel.includes(idx);
+        const isCorrectOpt = correctSet.has(idx);
+        let cls = '';
+        if(isCorrectOpt && wasSel) cls = 'correct';
+        else if(isCorrectOpt && !wasSel) cls = 'missed';
+        else if(!isCorrectOpt && wasSel) cls = 'incorrect';
+        opts += `
+        <div class="option ${cls}">
+          <div class="option-letter">${letters(idx)}</div>
+          <div class="option-box">${wasSel?'✓':''}</div>
+          <div class="option-text">${o}</div>
+        </div>`;
+      });
+      return `
+      <div class="review-card ${r.score===2?'right':r.score===1?'partial':'wrong'}">
+        <div class="review-head">
+          <div class="review-num">Сұрақ ${i+1}</div>
+          <span class="badge ${r.score===2?'badge-green':r.score===1?'badge-amber':'badge-red'}">${r.score} / 2 балл</span>
+        </div>
+        <div class="q-body" style="margin-bottom:14px;font-size:14.5px">${r.question}</div>
+        <div class="options">${opts}</div>
+      </div>`;
+    }).join('');
+  }
+
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">${attempt.date}</div></div>
+  </div>
+  <div class="body-wrap">
+    <div class="result-header">
+      <div class="result-score">${pct}%</div>
+      <div class="result-label">${attempt.score} / ${attempt.maxScore} балл</div>
+      <div class="result-sub">${attempt.answered}/${attempt.questions} сұраққа жауап берілген</div>
+      <div class="result-actions">
+        <button class="btn btn-secondary" onclick="goHistory()">← Тарихқа қайту</button>
+      </div>
+    </div>
+    <div class="section-title">Толық шолу</div>
+    ${review}
   </div>`;
 }
 
@@ -769,6 +1061,10 @@ function render(){
   if(!bootReady){ app.innerHTML = renderLoading(); return; }
   if(!currentUser){ app.innerHTML = renderAuth(); }
   else if(state.screen==='start') app.innerHTML = renderStart();
+  else if(state.screen==='decks') app.innerHTML = renderDecks();
+  else if(state.screen==='flashcards') app.innerHTML = renderFlashcards();
+  else if(state.screen==='history') app.innerHTML = renderHistory();
+  else if(state.screen==='history-detail') app.innerHTML = renderHistoryDetail();
   else if(state.screen==='test') app.innerHTML = renderTest();
   else app.innerHTML = renderResult();
   window.scrollTo({top:0, behavior:'instant'});
