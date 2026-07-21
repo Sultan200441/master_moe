@@ -171,6 +171,7 @@ body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);min-h
 .deck-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;width:100%}
 .deck-card{background:linear-gradient(145deg,rgba(24,29,46,.98),rgba(17,21,32,.95));border:1px solid var(--border2);border-radius:18px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .15s}
 .deck-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.deck-card.selected{border-color:var(--accent);background:linear-gradient(145deg,rgba(79,124,255,.16),rgba(79,124,255,.06));box-shadow:0 12px 30px rgba(79,124,255,.18)}
 .deck-card-num{font-size:26px;font-weight:800;color:var(--accent2);letter-spacing:-.5px}
 .deck-card-range{font-size:11.5px;color:var(--text3);margin-top:6px;font-family:'JetBrains Mono',monospace}
 .deck-card-count{font-size:11px;color:var(--text2);margin-top:10px;background:var(--accent-bg);display:inline-block;padding:3px 10px;border-radius:20px}
@@ -625,6 +626,7 @@ function createQuestionVariant(question){
 }
 
 let state = {screen:'start', current:0, answers:[], finished:false};
+let selectedGroups = [];
 
 function letters(i){ return ['A','B','C','D','E','F','G'][i]; }
 
@@ -725,6 +727,45 @@ function startDeckTest(deckIdx){
   const deck = getDecks()[deckIdx];
   SELECTED_QUESTIONS = shuffle(deck.questions).map(createQuestionVariant);
   state = {screen:'test', current:0, answers:Array(SELECTED_QUESTIONS.length).fill(null), finished:false, deckIndex:deckIdx};
+  render();
+}
+
+// ---- Таңдалған топтардан кездейсоқ 20 сұрақ ----
+function goCustom(){
+  SELECTED_QUESTIONS = [];
+  state = {screen:'custom', current:0, answers:[], finished:false};
+  render();
+}
+
+function toggleGroup(idx){
+  const i = selectedGroups.indexOf(idx);
+  if(i === -1) selectedGroups.push(idx);
+  else selectedGroups.splice(i, 1);
+  render();
+}
+
+function selectAllGroups(){
+  selectedGroups = getDecks().map(d => d.index);
+  render();
+}
+
+function clearAllGroups(){
+  selectedGroups = [];
+  render();
+}
+
+function startCustomTest(){
+  if(selectedGroups.length === 0) return;
+  const decks = getDecks();
+  let pool = [];
+  selectedGroups.forEach(idx => {
+    const d = decks[idx];
+    if(d) pool = pool.concat(d.questions);
+  });
+  if(pool.length === 0) return;
+  const count = Math.min(20, pool.length);
+  SELECTED_QUESTIONS = shuffle(pool).slice(0, count).map(createQuestionVariant);
+  state = {screen:'test', current:0, answers:Array(SELECTED_QUESTIONS.length).fill(null), finished:false, custom:true};
   render();
 }
 
@@ -876,6 +917,7 @@ function renderTabs(active){
   <div class="tabs-row">
     <div class="tab-btn ${active==='start'?'active':''}" onclick="goStart()">📝 Тест (кездейсоқ 20)</div>
     <div class="tab-btn ${active==='decks'?'active':''}" onclick="goDecks()">🗂️ Карточкалар (қайталау)</div>
+    <div class="tab-btn ${active==='custom'?'active':''}" onclick="goCustom()">🎯 Топтардан кездейсоқ тест</div>
     <div class="tab-btn ${active==='history'?'active':''}" onclick="goHistory()">📊 Тарих және анализ</div>
   </div>`;
 }
@@ -925,6 +967,47 @@ function renderDecks(){
       <div class="start-sub">Сұрақтар әрқайсысы 20-дан топтарға бөлінген (1-топ: 1–20-сұрақтар, 2-топ: 21–40-сұрақтар және т.б.). Топты таңдап, алдымен жауаптарымен қайталаңыз, содан кейін дәл сол 20 сұрақ бойынша тест тапсыруға болады.</div>
     </div>
     <div class="deck-grid">${cards}</div>
+  </div>`;
+}
+
+function renderCustomSelect(){
+  const decks = getDecks();
+  const cards = decks.map(d => {
+    const checked = selectedGroups.includes(d.index);
+    return `
+    <div class="deck-card ${checked?'selected':''}" onclick="toggleGroup(${d.index})">
+      <div class="deck-card-num">${checked?'✅ ':''}${d.index + 1}-топ</div>
+      <div class="deck-card-range">Сұрақ ${d.start + 1}–${d.end + 1}</div>
+      <div class="deck-card-count">${d.questions.length} сұрақ</div>
+    </div>`;
+  }).join('');
+
+  const totalAvailable = selectedGroups.reduce((sum, idx) => {
+    const d = decks[idx];
+    return sum + (d ? d.questions.length : 0);
+  }, 0);
+  const testCount = Math.min(20, totalAvailable);
+
+  return `
+  <div class="header">
+    <div class="brand"><div class="brand-title">Педагогика</div><div class="brand-sub">Топтардан кездейсоқ тест</div></div>
+    <div class="user-pill"><strong>${currentUser?.name || currentUser?.username || 'Пользователь'}</strong><span>•</span><button class="btn btn-sm btn-secondary" onclick="logout()">Выйти</button></div>
+  </div>
+  <div class="body-wrap">
+    ${renderTabs('custom')}
+    <div class="start-card" style="margin-bottom:20px">
+      <div class="start-title" style="font-size:22px">Керекті топтарды таңдаңыз</div>
+      <div class="start-sub">Бір немесе бірнеше топты таңдаңыз (мысалы 1–16-топ) — солардың сұрақтарының ішінен кездейсоқ түрде 20 сұрақ таңдалып, тест құрылады. Тест соңында дұрыс/қате жауаптарыңыз толық көрсетіледі.</div>
+      <div class="result-actions" style="margin-bottom:4px">
+        <button class="btn btn-sm btn-secondary" onclick="selectAllGroups()">Барлығын таңдау</button>
+        <button class="btn btn-sm btn-secondary" onclick="clearAllGroups()">Таңдауды тазарту</button>
+      </div>
+    </div>
+    <div class="deck-grid">${cards}</div>
+    <div style="margin-top:26px;width:100%;display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div style="color:var(--text3);font-size:13px">${selectedGroups.length ? `Таңдалды: ${selectedGroups.length} топ · ${totalAvailable} сұрақтан кездейсоқ ${testCount} сұрақ шығады` : 'Тестті бастау үшін кемінде бір топты таңдаңыз'}</div>
+      <button class="btn btn-lg" onclick="startCustomTest()" ${selectedGroups.length===0?'disabled':''}>Тестті бастау →</button>
+    </div>
   </div>`;
 }
 
@@ -1213,6 +1296,7 @@ function render(){
   if(!currentUser){ app.innerHTML = renderAuth(); }
   else if(state.screen==='start') app.innerHTML = renderStart();
   else if(state.screen==='decks') app.innerHTML = renderDecks();
+  else if(state.screen==='custom') app.innerHTML = renderCustomSelect();
   else if(state.screen==='flashcards') app.innerHTML = renderFlashcards();
   else if(state.screen==='history') app.innerHTML = renderHistory();
   else if(state.screen==='history-detail') app.innerHTML = renderHistoryDetail();
